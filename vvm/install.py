@@ -50,7 +50,10 @@ def _convert_and_validate_version(version: Union[str, Version]) -> Version:
     # take a user-supplied version as a string or Version
     # validate the value, and return a Version object
     if not isinstance(version, Version):
-        version = Version(version.lstrip("v"))
+        version = Version.coerce(version.lstrip("v"))
+    if len(version.prerelease) == 1 and version.prerelease[0].startswith("beta"):
+        # convert e.g. `beta17` to `beta.17`
+        version.prerelease = ("beta", version.prerelease[0][4:])
     return version
 
 
@@ -320,7 +323,8 @@ def _validate_installation(version: Version, vvm_binary_path: Union[Path, str, N
         raise UnexpectedVersionError(
             f"Attempted to install vyper v{version}, but got vyper v{installed_version}"
         )
-    if installed_version != version:
+    if "".join(installed_version.prerelease) != "".join(version.prerelease):
+        # join prerelease items so we don't warn when `beta.17` is actually `beta17`
         warnings.warn(f"Installed vyper version is v{installed_version}", UnexpectedVersionWarning)
     if not _default_vyper_binary:
         set_vyper_version(version)

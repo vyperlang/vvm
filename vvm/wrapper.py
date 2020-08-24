@@ -12,7 +12,7 @@ def _get_vyper_version(vyper_binary: Union[Path, str]) -> Version:
     # private wrapper function to get `vyper` version
     stdout_data = subprocess.check_output([vyper_binary, "--version"], encoding="utf8")
     version_str = stdout_data.split("+")[0]
-    return Version.coerce(version_str)
+    return install._convert_and_validate_version(version_str)
 
 
 def _to_string(key: str, value: Any) -> str:
