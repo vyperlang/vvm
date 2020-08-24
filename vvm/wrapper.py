@@ -6,17 +6,17 @@ from semantic_version import Version
 
 from vvm import install
 from vvm.exceptions import UnknownOption, UnknownValue, VyperError
+from vvm.utils.convert import to_vyper_version
 
 
 def _get_vyper_version(vyper_binary: Union[Path, str]) -> Version:
     # private wrapper function to get `vyper` version
     stdout_data = subprocess.check_output([vyper_binary, "--version"], encoding="utf8")
     version_str = stdout_data.split("+")[0]
-    return install._convert_and_validate_version(version_str)
+    return to_vyper_version(version_str)
 
 
 def _to_string(key: str, value: Any) -> str:
-    # convert data into a string prior to calling `vyper`
     if isinstance(value, (int, str)):
         return str(value)
     elif isinstance(value, Path):
@@ -30,7 +30,7 @@ def _to_string(key: str, value: Any) -> str:
 def vyper_wrapper(
     vyper_binary: Union[Path, str] = None,
     stdin: str = None,
-    source_files: List = None,
+    source_files: Union[List, Path, str] = None,
     success_return_code: int = 0,
     **kwargs: Any,
 ) -> Tuple[str, str, List, subprocess.Popen]:
@@ -44,7 +44,7 @@ def vyper_wrapper(
     stdin : str, optional
         Input to pass to `vyper` via stdin
     source_files : list, optional
-        Paths of source files to compile
+        Path or list of paths of source files to compile
     success_return_code : int, optional
         Expected exit code. Raises `VyperError` if the process returns a different value.
 
@@ -82,7 +82,10 @@ def vyper_wrapper(
     command: List = [vyper_binary]
 
     if source_files is not None:
-        command.extend([_to_string("source_files", i) for i in source_files])
+        if isinstance(source_files, (str, Path)):
+            command.append(_to_string("source_files", source_files))
+        else:
+            command.extend([_to_string("source_files", i) for i in source_files])
 
     for key, value in kwargs.items():
         if value is None or value is False:

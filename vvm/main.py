@@ -73,7 +73,7 @@ def compile_source(
 
 
 def compile_files(
-    source_files: List,
+    source_files: Union[List, Path, str],
     base_path: Union[Path, str] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
@@ -88,7 +88,7 @@ def compile_files(
     Arguments
     ---------
     source_files: List
-        List of paths of Vyper source files to be compiled.
+        Path or list of paths of Vyper source files to be compiled.
     base_path : Path | str, optional
         Use the given path as the root of the source tree instead of the root
         of the filesystem.

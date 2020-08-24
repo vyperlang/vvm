@@ -18,6 +18,7 @@ from vvm.exceptions import (
     VyperInstallationError,
     VyperNotInstalled,
 )
+from vvm.utils.convert import to_vyper_version
 from vvm.utils.lock import get_process_lock
 
 try:
@@ -44,17 +45,6 @@ def _get_os_name() -> str:
     if sys.platform == "win32":
         return "windows"
     raise OSError(f"Unsupported OS: '{sys.platform}' - vvm supports Linux, OSX and Windows")
-
-
-def _convert_and_validate_version(version: Union[str, Version]) -> Version:
-    # take a user-supplied version as a string or Version
-    # validate the value, and return a Version object
-    if not isinstance(version, Version):
-        version = Version.coerce(version.lstrip("v"))
-    if len(version.prerelease) == 1 and version.prerelease[0].startswith("beta"):
-        # convert e.g. `beta17` to `beta.17`
-        version.prerelease = ("beta", version.prerelease[0][4:])
-    return version
 
 
 def get_vvm_install_folder(vvm_binary_path: Union[Path, str] = None) -> Path:
@@ -110,7 +100,7 @@ def get_executable(
             )
         return _default_vyper_binary
 
-    version = _convert_and_validate_version(version)
+    version = to_vyper_version(version)
     vyper_bin = get_vvm_install_folder(vvm_binary_path).joinpath(f"vyper-{version}")
     if _get_os_name() == "windows":
         vyper_bin = vyper_bin.with_suffix(".exe")
@@ -139,7 +129,7 @@ def set_vyper_version(
     vvm_binary_path : Path | str, optional
         User-defined path, used to override the default installation directory.
     """
-    version = _convert_and_validate_version(version)
+    version = to_vyper_version(version)
     global _default_vyper_binary
     _default_vyper_binary = get_executable(version, vvm_binary_path)
     if not silent:
@@ -239,7 +229,7 @@ def install_vyper(
     if version == "latest":
         version = get_installable_vyper_versions()[0]
     else:
-        version = _convert_and_validate_version(version)
+        version = to_vyper_version(version)
 
     os_name = _get_os_name()
     process_lock = get_process_lock(str(version))
