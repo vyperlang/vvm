@@ -143,6 +143,14 @@ def set_vyper_version(
         LOGGER.info(f"Using vyper version {version}")
 
 
+def _get_headers(headers: Optional[Dict]) -> Dict:
+    if headers is None and os.getenv("GITHUB_TOKEN") is not None:
+        auth = b64encode(os.environ["GITHUB_TOKEN"].encode()).decode()
+        headers = {"Authorization": f"Basic {auth}"}
+
+    return headers or {}
+
+
 def _get_releases(headers: Optional[Dict]) -> Dict:
     data = requests.get(GITHUB_RELEASES, headers=headers)
     if data.status_code != 200:
@@ -172,9 +180,7 @@ def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
     """
     version_list = []
 
-    if headers is None and os.getenv("GITHUB_TOKEN") is not None:
-        auth = b64encode(os.environ["GITHUB_TOKEN"].encode()).decode()
-        headers = {"Authorization": f"Basic {auth}"}
+    headers = _get_headers(headers)
 
     for release in _get_releases(headers):
         version = Version.coerce(release["tag_name"].lstrip("v"))
@@ -241,6 +247,7 @@ def install_vyper(
             LOGGER.info(f"vyper {version} already installed at: {path}")
             return version
 
+        headers = _get_headers(headers)
         data = _get_releases(headers)
         try:
             release = next(i for i in data if i["tag_name"] == f"v{version}")
@@ -253,7 +260,7 @@ def install_vyper(
             install_path = install_path.with_suffix(".exe")
 
         url = BINARY_DOWNLOAD_BASE.format(version, asset["name"])
-        content = _download_vyper(url, show_progress)
+        content = _download_vyper(url, headers, show_progress)
         with open(install_path, "wb") as fp:
             fp.write(content)
 
@@ -272,9 +279,9 @@ def _check_for_installed_version(
     return path.exists()
 
 
-def _download_vyper(url: str, show_progress: bool) -> bytes:
+def _download_vyper(url: str, headers: Dict, show_progress: bool) -> bytes:
     LOGGER.info(f"Downloading from {url}")
-    response = requests.get(url, stream=show_progress)
+    response = requests.get(url, headers=headers, stream=show_progress)
     if response.status_code == 404:
         raise DownloadError(
             "404 error when attempting to download from {} - are you sure this"
