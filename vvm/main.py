@@ -115,22 +115,6 @@ def compile_files(
     )
 
 
-def _parse_compiler_output(stdoutdata: str) -> Dict:
-    output = json.loads(stdoutdata)
-
-    contracts = output.get("contracts", {})
-    sources = output.get("sources", {})
-
-    for path_str, data in contracts.items():
-        if "abi" in data:
-            data["abi"] = json.loads(data["abi"])
-        key = path_str.rsplit(":", maxsplit=1)[0]
-        if "AST" in sources.get(key, {}):
-            data["ast"] = sources[key]["AST"]
-
-    return contracts
-
-
 def _compile(
     base_path: Union[str, Path, None],
     vyper_binary: Union[str, Path, None],
