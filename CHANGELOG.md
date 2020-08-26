@@ -6,5 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/vyperlang/vvm/)
 
+## [0.0.2](https://github.com/vyperlang/vvm/tree/v0.0.2) - 2020-08-26
+### Fixed
+- Ignore `.exe` when handling versions on Windows
+
 ## [0.0.1](https://github.com/vyperlang/vvm/tree/v0.0.1) - 2020-08-25
 - Initial release

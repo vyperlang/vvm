@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="vvm",
-    version="0.0.1",  # don't change this manually, use bumpversion instead
+    version="0.0.2",  # don't change this manually, use bumpversion instead
     description="Vyper version management tool",
     long_description_markdown_filename="README.md",
     author="Ben Hauser",
