@@ -103,7 +103,7 @@ def get_executable(
     version = to_vyper_version(version)
     vyper_bin = get_vvm_install_folder(vvm_binary_path).joinpath(f"vyper-{version}")
     if _get_os_name() == "windows":
-        vyper_bin = vyper_bin.with_suffix(".exe")
+        vyper_bin = vyper_bin.with_name(f"{vyper_bin.name}.exe")
 
     if not vyper_bin.exists():
         raise VyperNotInstalled(
@@ -198,7 +198,11 @@ def get_installed_vyper_versions(vvm_binary_path: Union[Path, str] = None) -> Li
         List of Version objects of installed `vyper` versions.
     """
     install_path = get_vvm_install_folder(vvm_binary_path)
-    return sorted([Version(i.name[6:]) for i in install_path.glob("vyper-*")], reverse=True)
+    if _get_os_name() == "windows":
+        version_list = [i.stem[6:] for i in install_path.glob("vyper-*")]
+    else:
+        version_list = [i.name[6:] for i in install_path.glob("vyper-*")]
+    return sorted([Version(i) for i in version_list], reverse=True)
 
 
 def install_vyper(
@@ -250,7 +254,7 @@ def install_vyper(
 
         install_path = get_vvm_install_folder(vvm_binary_path).joinpath(f"vyper-{version}")
         if os_name == "windows":
-            install_path = install_path.with_suffix(".exe")
+            install_path = install_path.with_name(f"{install_path.name}.exe")
 
         url = BINARY_DOWNLOAD_BASE.format(version, asset["name"])
         content = _download_vyper(url, headers, show_progress)
