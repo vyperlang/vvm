@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/vyperlang/vvm/)
 
+## [0.1.0](https://github.com/vyperlang/vvm/tree/v0.1.0) - 2020-10-07
+### Added
+- Support for Python 3.9
+- Cache version information
+
 ## [0.0.2](https://github.com/vyperlang/vvm/tree/v0.0.2) - 2020-08-26
 ### Fixed
 - Ignore `.exe` when handling versions on Windows

@@ -4,8 +4,6 @@
 
 Vyper version management tool.
 
-**Note**: This project is an early alpha and still under active development.
-
 ## Installation
 
 ### via `pip`
