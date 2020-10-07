@@ -1,6 +1,6 @@
 import subprocess
 from pathlib import Path
-from typing import Any, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from semantic_version import Version
 
@@ -8,12 +8,20 @@ from vvm import install
 from vvm.exceptions import UnknownOption, UnknownValue, VyperError
 from vvm.utils.convert import to_vyper_version
 
+_version_cache: Dict[str, Version] = {}
+
 
 def _get_vyper_version(vyper_binary: Union[Path, str]) -> Version:
     # private wrapper function to get `vyper` version
-    stdout_data = subprocess.check_output([vyper_binary, "--version"], encoding="utf8")
-    version_str = stdout_data.split("+")[0]
-    return to_vyper_version(version_str)
+    cache_key = str(vyper_binary)
+
+    if cache_key not in _version_cache:
+        # cache the version info, because vyper binaries can be slow to load
+        stdout_data = subprocess.check_output([vyper_binary, "--version"], encoding="utf8")
+        version_str = stdout_data.split("+")[0]
+        _version_cache[cache_key] = to_vyper_version(version_str)
+
+    return _version_cache[cache_key]
 
 
 def _to_string(key: str, value: Any) -> str:
