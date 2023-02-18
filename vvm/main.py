@@ -29,6 +29,7 @@ def compile_source(
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
+    **kwargs,
 ) -> Dict:
     """
     Compile a Vyper contract.
@@ -52,6 +53,20 @@ def compile_source(
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
 
+    Keyword Arguments
+    -----------------
+    **kwargs : Any
+        Flags to be passed to `vyper`. Keywords are converted to flags by prepending `--` and
+        replacing `_` with `-`, for example the keyword `evm_version` becomes `--evm-version`.
+        Values may be given in the following formats:
+
+            * `False`, `None`: ignored
+            * `True`: flag is used without any arguments
+            * str: given as an argument without modification
+            * int: given as an argument, converted to a string
+            * Path: converted to a string via `Path.as_posix()`
+            * List, Tuple: elements are converted to strings and joined with `,`
+
     Returns
     -------
     Dict
@@ -67,6 +82,7 @@ def compile_source(
         source_files=[source_path],
         base_path=base_path,
         evm_version=evm_version,
+        **kwargs,
     )
 
     return {"<stdin>": list(compiler_data.values())[0]}
