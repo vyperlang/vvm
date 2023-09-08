@@ -17,7 +17,7 @@ setup(
     include_package_data=True,
     py_modules=["vvm"],
     python_requires=">=3.6, <4",
-    install_requires=["requests>=2.19.0,<3", "semantic_version>=2.8.1,<3"],
+    install_requires=["requests>=2.19.0,<3", "packaging>=23.1,<24"],
     license="MIT",
     zip_safe=False,
     keywords="ethereum vyper",

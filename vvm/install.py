@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 import requests
-from semantic_version import Version
+from packaging.version import Version
 
 from vvm import wrapper
 from vvm.exceptions import (
@@ -27,7 +27,6 @@ except ImportError:
     tqdm = None
 
 
-BINARY_DOWNLOAD_BASE = "https://github.com/vyperlang/vyper/releases/download/v{}/{}"
 GITHUB_RELEASES = "https://api.github.com/repos/vyperlang/vyper/releases?per_page=100"
 
 LOGGER = logging.getLogger("vvm")
@@ -176,7 +175,7 @@ def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
     headers = _get_headers(headers)
 
     for release in _get_releases(headers):
-        version = Version.coerce(release["tag_name"].lstrip("v"))
+        version = Version(release["tag_name"])
         asset = next((i for i in release["assets"] if _get_os_name() in i["name"]), False)
         if asset:
             version_list.append(version)
@@ -247,7 +246,7 @@ def install_vyper(
         headers = _get_headers(headers)
         data = _get_releases(headers)
         try:
-            release = next(i for i in data if i["tag_name"] == f"v{version}")
+            release = next(i for i in data if Version(i["tag_name"]) == version)
             asset = next(i for i in release["assets"] if _get_os_name() in i["name"])
         except StopIteration:
             raise VyperInstallationError(f"Vyper binary not available for v{version}")
@@ -256,7 +255,7 @@ def install_vyper(
         if os_name == "windows":
             install_path = install_path.with_name(f"{install_path.name}.exe")
 
-        url = BINARY_DOWNLOAD_BASE.format(version, asset["name"])
+        url = asset["browser_download_url"]
         content = _download_vyper(url, headers, show_progress)
         with open(install_path, "wb") as fp:
             fp.write(content)
@@ -312,14 +311,17 @@ def _validate_installation(version: Version, vvm_binary_path: Union[Path, str, N
         raise VyperInstallationError(
             "Downloaded binary would not execute, or returned unexpected output."
         )
-    if installed_version.truncate() != version.truncate():
+
+    if installed_version.base_version != version.base_version:
+        # raise if the version of the tag is not the same as the binary version
         binary_path.unlink()
         raise UnexpectedVersionError(
             f"Attempted to install vyper v{version}, but got vyper v{installed_version}"
         )
-    if "".join(installed_version.prerelease) != "".join(version.prerelease):
-        # join prerelease items so we don't warn when `beta.17` is actually `beta17`
+    if installed_version != version:
+        # warn, but don't raise, when pre or post release is not the same.
         warnings.warn(f"Installed vyper version is v{installed_version}", UnexpectedVersionWarning)
+
     if not _default_vyper_binary:
         set_vyper_version(version)
     LOGGER.info(f"vyper {version} successfully installed at: {binary_path}")
