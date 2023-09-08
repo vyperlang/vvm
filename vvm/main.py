@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from semantic_version import Version
+from packaging.version import Version
 
 from vvm import wrapper
 from vvm.exceptions import VyperError

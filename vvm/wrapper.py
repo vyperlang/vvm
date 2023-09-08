@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 
-from semantic_version import Version
+from packaging.version import Version
 
 from vvm import install
 from vvm.exceptions import UnknownOption, UnknownValue, VyperError

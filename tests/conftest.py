@@ -2,7 +2,7 @@
 
 import pytest
 from requests import ConnectionError
-from semantic_version import Version
+from packaging.version import Version
 
 import vvm
 
