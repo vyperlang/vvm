@@ -27,7 +27,6 @@ except ImportError:
     tqdm = None
 
 
-BINARY_DOWNLOAD_BASE = "https://github.com/vyperlang/vyper/releases/download/v{}/{}"
 GITHUB_RELEASES = "https://api.github.com/repos/vyperlang/vyper/releases?per_page=100"
 
 LOGGER = logging.getLogger("vvm")
@@ -247,7 +246,7 @@ def install_vyper(
         headers = _get_headers(headers)
         data = _get_releases(headers)
         try:
-            release = next(i for i in data if i["tag_name"] == f"v{version}")
+            release = next(i for i in data if Version(i["tag_name"]) == version)
             asset = next(i for i in release["assets"] if _get_os_name() in i["name"])
         except StopIteration:
             raise VyperInstallationError(f"Vyper binary not available for v{version}")
@@ -256,7 +255,7 @@ def install_vyper(
         if os_name == "windows":
             install_path = install_path.with_name(f"{install_path.name}.exe")
 
-        url = BINARY_DOWNLOAD_BASE.format(version, asset["name"])
+        url = asset["browser_download_url"]
         content = _download_vyper(url, headers, show_progress)
         with open(install_path, "wb") as fp:
             fp.write(content)

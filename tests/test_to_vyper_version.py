@@ -1,5 +1,5 @@
 import pytest
-from semantic_version import Version
+from packaging.version import Version
 
 from vvm.utils.convert import to_vyper_version
 
