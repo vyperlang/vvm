@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 from packaging.version import Version
 
 from vvm import wrapper
-from vvm.exceptions import VyperError
+from vvm.exceptions import VyperError, VyperOutputError
 from vvm.install import get_executable
 
 
@@ -168,7 +168,11 @@ def _compile(
         vyper_binary=vyper_binary, f=output_format, p=base_path, **kwargs
     )
 
-    return json.loads(stdoutdata)
+    # TODO: This line throws when the specified output format is not valid json
+    try:
+        return json.loads(stdoutdata)
+    except json.JSONDecodeError:
+        raise VyperOutputError(f"Vyper output format {output_format} not valid JSON")
 
 
 def compile_standard(

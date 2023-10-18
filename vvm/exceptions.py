@@ -60,6 +60,8 @@ class VyperInstallationError(Exception):
 class VyperNotInstalled(Exception):
     pass
 
+class VyperOutputError(Exception):
+    pass
 
 # Warnings
 
