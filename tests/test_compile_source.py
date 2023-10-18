@@ -14,7 +14,7 @@ def test_compile_files(foo_path):
 
 def test_compile_to_ast(foo_source):
     output = vvm.compile_source(foo_source, f="ast")
-    assert "ast" in output
+    assert "ast" in output['<stdin>']
 
 def test_compile_standard(input_json, foo_source):
     input_json["sources"] = {"contracts/Foo.vy": {"content": foo_source}}
