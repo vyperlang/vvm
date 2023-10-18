@@ -85,6 +85,12 @@ def compile_source(
         **kwargs,
     )
 
+    if "f" in kwargs and kwargs["f"] != "combined_json":
+        data = {}
+        for format in kwargs["f"].split(","):
+            data[format] = compiler_data[format]
+        return {"<stdin>": data}
+
     return {"<stdin>": list(compiler_data.values())[0]}
 
 
@@ -153,12 +159,13 @@ def _compile(
     vyper_version: Optional[Version],
     **kwargs: Any,
 ) -> Dict:
-
     if vyper_binary is None:
         vyper_binary = get_executable(vyper_version)
 
+    output_format = kwargs.pop("f", "combined_json")
+
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f="combined_json", p=base_path, **kwargs
+        vyper_binary=vyper_binary, f=output_format, p=base_path, **kwargs
     )
 
     return json.loads(stdoutdata)
