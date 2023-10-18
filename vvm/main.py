@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 from packaging.version import Version
 
 from vvm import wrapper
-from vvm.exceptions import VyperError
+from vvm.exceptions import VyperError, VyperOutputError
 from vvm.install import get_executable
 
 
@@ -29,6 +29,7 @@ def compile_source(
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
+    **kwargs: Any,
 ) -> Dict:
     """
     Compile a Vyper contract.
@@ -52,6 +53,20 @@ def compile_source(
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
 
+    Keyword Arguments
+    -----------------
+    **kwargs : Any
+        Flags to be passed to `vyper`. Keywords are converted to flags by prepending `--` and
+        replacing `_` with `-`, for example the keyword `evm_version` becomes `--evm-version`.
+        Values may be given in the following formats:
+
+            * `False`, `None`: ignored
+            * `True`: flag is used without any arguments
+            * str: given as an argument without modification
+            * int: given as an argument, converted to a string
+            * Path: converted to a string via `Path.as_posix()`
+            * List, Tuple: elements are converted to strings and joined with `,`
+
     Returns
     -------
     Dict
@@ -67,7 +82,14 @@ def compile_source(
         source_files=[source_path],
         base_path=base_path,
         evm_version=evm_version,
+        **kwargs,
     )
+
+    if "f" in kwargs and kwargs["f"] != "combined_json":
+        data = {}
+        for format in kwargs["f"].split(","):
+            data[format] = compiler_data[format]
+        return {"<stdin>": data}
 
     return {"<stdin>": list(compiler_data.values())[0]}
 
@@ -78,6 +100,7 @@ def compile_files(
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
+    **kwargs: Any,
 ) -> Dict:
     """
     Compile one or more Vyper source files.
@@ -101,6 +124,20 @@ def compile_files(
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
 
+    Keyword Arguments
+    -----------------
+    **kwargs : Any
+        Flags to be passed to `vyper`. Keywords are converted to flags by prepending `--` and
+        replacing `_` with `-`, for example the keyword `evm_version` becomes `--evm-version`.
+        Values may be given in the following formats:
+
+            * `False`, `None`: ignored
+            * `True`: flag is used without any arguments
+            * str: given as an argument without modification
+            * int: given as an argument, converted to a string
+            * Path: converted to a string via `Path.as_posix()`
+            * List, Tuple: elements are converted to strings and joined with `,`
+
     Returns
     -------
     Dict
@@ -112,6 +149,7 @@ def compile_files(
         source_files=source_files,
         base_path=base_path,
         evm_version=evm_version,
+        **kwargs,
     )
 
 
@@ -121,15 +159,20 @@ def _compile(
     vyper_version: Optional[Version],
     **kwargs: Any,
 ) -> Dict:
-
     if vyper_binary is None:
         vyper_binary = get_executable(vyper_version)
 
+    output_format = kwargs.pop("f", "combined_json")
+
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f="combined_json", p=base_path, **kwargs
+        vyper_binary=vyper_binary, f=output_format, p=base_path, **kwargs
     )
 
-    return json.loads(stdoutdata)
+    # TODO: This line throws when the specified output format is not valid json
+    try:
+        return json.loads(stdoutdata)
+    except json.JSONDecodeError:
+        raise VyperOutputError(f"Vyper output format {output_format} not valid JSON")
 
 
 def compile_standard(
