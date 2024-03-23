@@ -43,4 +43,5 @@ It's a good idea to make pull requests early on. A pull request represents the s
 
 If you are opening a work-in-progress pull request to verify that it passes CI tests, please consider [marking it as a draft](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests#draft-pull-requests).
 
-Join the Brownie [Gitter channel](https://gitter.im/eth-brownie/community) if you have any questions.
+For further discussions and questions, talk to us on [Discord](https://discord.gg/6tw7PTM7C2) or on [Telegram](t.me/vyperlang).
+
