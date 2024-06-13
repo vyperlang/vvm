@@ -7,7 +7,7 @@ with open('README.md', encoding="utf-8") as f:
 
 setup(
     name="vvm",
-    version="0.2.0",  # don't change this manually, use bumpversion instead
+    version="0.2.1",  # don't change this manually, use bumpversion instead
     description="Vyper version management tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
