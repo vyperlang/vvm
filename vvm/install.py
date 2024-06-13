@@ -26,6 +26,7 @@ try:
 except ImportError:
     tqdm = None
 
+SESSION = requests.session()
 
 GITHUB_RELEASES = "https://api.github.com/repos/vyperlang/vyper/releases?per_page=100"
 
@@ -144,7 +145,7 @@ def _get_headers(headers: Optional[Dict]) -> Dict:
 
 
 def _get_releases(headers: Optional[Dict]) -> Dict:
-    data = requests.get(GITHUB_RELEASES, headers=headers)
+    data = SESSION.get(GITHUB_RELEASES, headers=headers)
     if data.status_code != 200:
         msg = (
             f"Status {data.status_code} when getting Vyper versions from Github:"
@@ -277,7 +278,7 @@ def _check_for_installed_version(
 
 def _download_vyper(url: str, headers: Dict, show_progress: bool) -> bytes:
     LOGGER.info(f"Downloading from {url}")
-    response = requests.get(url, headers=headers, stream=show_progress)
+    response = SESSION.get(url, headers=headers, stream=show_progress)
     if response.status_code == 404:
         raise DownloadError(
             "404 error when attempting to download from {} - are you sure this"
