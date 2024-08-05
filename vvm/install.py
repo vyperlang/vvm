@@ -205,6 +205,7 @@ def get_installed_vyper_versions(vvm_binary_path: Union[Path, str] = None) -> Li
     return sorted([Version(i) for i in version_list], reverse=True)
 
 
+# TODO: maybe rename this function to `ensure_installed`
 def install_vyper(
     version: Union[str, Version] = "latest",
     show_progress: bool = False,
