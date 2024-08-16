@@ -126,7 +126,7 @@ def _compile(
         vyper_binary = get_executable(vyper_version)
 
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f="combined_json", p=base_path, **kwargs
+        vyper_binary=vyper_binary, f="combined_json", path=base_path, **kwargs
     )
 
     return json.loads(stdoutdata)
@@ -167,7 +167,7 @@ def compile_standard(
         vyper_binary = get_executable(vyper_version)
 
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, stdin=json.dumps(input_data), standard_json=True, p=base_path
+        vyper_binary=vyper_binary, stdin=json.dumps(input_data), standard_json=True, path=base_path
     )
 
     compiler_output = json.loads(stdoutdata)
