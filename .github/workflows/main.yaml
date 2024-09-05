@@ -28,6 +28,29 @@ jobs:
     - name: Run Tox
       run: tox -e lint
 
+  py36:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Python 3.6
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+
+    - name: Install Tox
+      run: pip install tox wheel
+
+    - name: Run Tox
+      run: tox -e py36
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
+
   py37:
     runs-on: ubuntu-latest
 
@@ -94,29 +117,6 @@ jobs:
 
     - name: Run Tox
       run: tox -e py39
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-
-  py312:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Python 3.12
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.12
-
-    - name: Install Tox
-      run: pip install tox wheel
-
-    - name: Run Tox
-      run: tox -e py312
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
