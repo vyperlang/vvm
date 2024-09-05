@@ -67,8 +67,12 @@ def all_versions(request):
 @pytest.fixture
 def foo_source(all_versions):
     visibility = "external" if all_versions >= Version("0.2.0") else "public"
+    interface = "IERC20" if all_versions >= Version("0.4.0a") else "ERC20"
+    import_path = "ethereum.ercs" if all_versions >= Version("0.4.0a") else "vyper.interfaces"
+    pragma_version = "pragma version" if all_versions >= Version("0.3.10") else "@version"
     yield f"""
-from vyper.interfaces import ERC20
+#{pragma_version} ^{all_versions}
+from {import_path} import {interface}
 
 @{visibility}
 def foo() -> int128:

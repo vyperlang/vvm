@@ -1,4 +1,5 @@
 import pytest
+from packaging.version import Version
 
 import vvm
 
@@ -30,3 +31,17 @@ def foo() -> int128:
     return 42
     """
     vvm.compile_source(source, vyper_version=version_str)
+
+
+def test_compile_metadata(foo_source, all_versions):
+    if all_versions <= Version("0.3.1"):
+        raise pytest.skip("metadata output not supported in vyper < 0.3.2")
+    output = vvm.compile_source(foo_source, output_format="metadata")
+    assert "function_info" in output
+
+
+def test_compile_metadata_from_file(foo_path, all_versions):
+    if all_versions <= Version("0.3.1"):
+        raise pytest.skip("metadata output not supported in vyper < 0.3.2")
+    output = vvm.compile_files([foo_path], output_format="metadata")
+    assert "function_info" in output

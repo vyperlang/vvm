@@ -4,14 +4,13 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from packaging.version import Version
+from packaging.version import Version, InvalidVersion
 
 from vvm import wrapper
 from vvm.exceptions import VyperError
 from vvm.install import get_executable
 
-# TODO: this currently doesn't work with version ranges or release candidates
-VERSION_RE = re.compile(r"\s*#\s*(pragma\s+version|@version)\s+(\d+\.\d+\.\d+)")
+VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+[=><^]?(\d+\.\d+\.\d+\S*)")
 
 
 def get_vyper_version() -> Version:
@@ -27,12 +26,28 @@ def get_vyper_version() -> Version:
     return wrapper._get_vyper_version(vyper_binary)
 
 
-def detect_vyper_version_from_source(source_code: str):
-    res = VERSION_RE.findall(source_code)
-    if len(res) < 1:
+def detect_vyper_version_from_source(source_code: str) -> Optional[str]:
+    """
+    Detect the version given by the pragma version in the source code.
+    TODO: when the user has a range, we should compare to the installed versions
+
+    Arguments
+    ---------
+    source_code : str
+        Source code to detect the version from.
+
+    Returns
+    -------
+    str
+        vyper version, or None if no version could be detected.
+    """
+    try:
+        finditer = VERSION_RE.finditer(source_code)
+        version_str = next(finditer).group(1)
+        Version(version_str)  # validate the version
+        return version_str
+    except (StopIteration, InvalidVersion):
         return None
-    # TODO: handle len(res) > 1
-    return res[0][1]
 
 
 def compile_source(
@@ -42,7 +57,7 @@ def compile_source(
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
     output_format: str = None,
-) -> Dict | str:
+) -> Any:
     """
     Compile a Vyper contract.
 
@@ -69,8 +84,9 @@ def compile_source(
 
     Returns
     -------
-    Dict
-        Compiler output. The source file name is given as `<stdin>`.
+    Any
+        Compiler output (depends on `output_format`).
+        For JSON output the return type is a dictionary, otherwise it is a string.
     """
     if vyper_version is None:
         vyper_version = detect_vyper_version_from_source(source)
@@ -100,7 +116,7 @@ def compile_files(
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
     output_format: str = None,
-) -> Dict | str:
+) -> Any:
     """
     Compile one or more Vyper source files.
 
@@ -127,8 +143,9 @@ def compile_files(
 
     Returns
     -------
-    Dict
-        Compiler output
+    Any
+        Compiler output (depends on `output_format`).
+        For JSON output the return type is a dictionary, otherwise it is a string.
     """
     return _compile(
         vyper_binary=vyper_binary,
@@ -146,7 +163,7 @@ def _compile(
     vyper_version: Optional[Version],
     output_format: Optional[str],
     **kwargs: Any,
-) -> Dict | str:
+) -> Any:
 
     if vyper_binary is None:
         vyper_binary = get_executable(vyper_version)
