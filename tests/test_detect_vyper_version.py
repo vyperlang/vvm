@@ -6,6 +6,7 @@ from vvm import detect_vyper_version_from_source
 def test_detect_vyper_version_from_source(foo_source, all_versions):
     assert detect_vyper_version_from_source(foo_source) == str(all_versions)
 
+
 @pytest.mark.parametrize(
     "version_str,decorator",
     [

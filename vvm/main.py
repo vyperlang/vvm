@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from packaging.version import Version, InvalidVersion
+from packaging.version import InvalidVersion, Version
 
 from vvm import wrapper
 from vvm.exceptions import VyperError
@@ -55,7 +55,7 @@ def compile_source(
     base_path: Union[Path, str] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
-    vyper_version: Version = None,
+    vyper_version: Union[str, Version, None] = None,
     output_format: str = None,
 ) -> Any:
     """
@@ -114,7 +114,7 @@ def compile_files(
     base_path: Union[Path, str] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
-    vyper_version: Version = None,
+    vyper_version: Union[str, Version, None] = None,
     output_format: str = None,
 ) -> Any:
     """
@@ -160,7 +160,7 @@ def compile_files(
 def _compile(
     base_path: Union[str, Path, None],
     vyper_binary: Union[str, Path, None],
-    vyper_version: Optional[Version],
+    vyper_version: Union[str, Version, None],
     output_format: Optional[str],
     **kwargs: Any,
 ) -> Any:
