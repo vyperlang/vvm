@@ -36,9 +36,9 @@ jobs:
         python-version: [["3.8", "38"], ["3.9", "39"], ["3.10", "310"], ["3.11", "311"], ["3.12", "312"]]
         include:
           - os: macos-latest
-            python-version: [["3.11", "311"]]
+            python-version: ["3.11", "311"]
           - os: windows-latest
-            python-version: [["3.11", "311"]]
+            python-version: ["3.11", "311"]
 
     runs-on: ${{ matrix.os }}
 
