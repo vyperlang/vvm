@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import pytest
-from requests import ConnectionError
 from packaging.version import Version
+from requests import ConnectionError
 
 import vvm
 
