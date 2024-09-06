@@ -1,6 +1,6 @@
 # vvm
 
-[![Pypi Status](https://img.shields.io/pypi/v/vvm.svg)](https://pypi.org/project/vvm/) [![Build Status](https://img.shields.io/github/workflow/status/vyperlang/vvm/vvm%20workflow)](https://github.com/vyperlang/vvm/actions) [![Coverage Status](https://img.shields.io/codecov/c/github/vyperlang/vvm)](https://codecov.io/gh/vyperlang/vvm)
+[![Pypi Status](https://img.shields.io/pypi/v/vvm.svg)](https://pypi.org/project/vvm/) [![Build Status](https://img.shields.io/github/actions/workflow/status/vyperlang/vvm/main.yaml?branch=master)](https://github.com/vyperlang/vvm/actions) [![Coverage Status](https://img.shields.io/codecov/c/github/vyperlang/vvm)](https://codecov.io/gh/vyperlang/vvm)
 
 Vyper version management tool.
 
