@@ -26,7 +26,7 @@ def get_vyper_version() -> Version:
     return wrapper._get_vyper_version(vyper_binary)
 
 
-def detect_vyper_version_from_source(source_code: str) -> Optional[str]:
+def detect_vyper_version_from_source(source_code: str) -> Optional[Version]:
     """
     Detect the version given by the pragma version in the source code.
     TODO: when the user has a range, we should compare to the installed versions
@@ -43,9 +43,7 @@ def detect_vyper_version_from_source(source_code: str) -> Optional[str]:
     """
     try:
         finditer = VERSION_RE.finditer(source_code)
-        version_str = next(finditer).group(1)
-        Version(version_str)  # validate the version
-        return version_str
+        return Version(next(finditer).group(1))
     except (StopIteration, InvalidVersion) as e:
         return None
 

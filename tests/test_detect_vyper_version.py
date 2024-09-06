@@ -1,10 +1,11 @@
 import pytest
+from packaging.version import Version
 
 from vvm import detect_vyper_version_from_source
 
 
 def test_detect_vyper_version_from_source(foo_source, all_versions):
-    assert detect_vyper_version_from_source(foo_source) == str(all_versions)
+    assert detect_vyper_version_from_source(foo_source) == all_versions
 
 
 @pytest.mark.parametrize(
@@ -23,4 +24,4 @@ def test_detect_vyper_version_beta(version_str, decorator):
 def foo() -> int128:
     return 42
     """
-    assert detect_vyper_version_from_source(source) == version_str
+    assert detect_vyper_version_from_source(source) == Version(version_str)
