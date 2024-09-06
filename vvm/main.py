@@ -23,6 +23,30 @@ def get_vyper_version() -> Version:
     return wrapper._get_vyper_version(vyper_binary)
 
 
+def detect_vyper_version_from_source(source_code: str) -> Optional[str]:
+    """
+    Detect the version given by the pragma version in the source code.
+    TODO: when the user has a range, we should compare to the installed versions
+
+    Arguments
+    ---------
+    source_code : str
+        Source code to detect the version from.
+
+    Returns
+    -------
+    str
+        vyper version, or None if no version could be detected.
+    """
+    try:
+        finditer = VERSION_RE.finditer(source_code)
+        version_str = next(finditer).group(1)
+        Version(version_str)  # validate the version
+        return version_str
+    except (StopIteration, InvalidVersion):
+        return None
+
+
 def compile_source(
     source: str,
     base_path: Union[Path, str] = None,
@@ -57,6 +81,9 @@ def compile_source(
     Dict
         Compiler output. The source file name is given as `<stdin>`.
     """
+    if vyper_version is None:
+        vyper_version = detect_vyper_version_from_source(source)
+
     source_path = tempfile.mkstemp(suffix=".vy", prefix="vyper-", text=True)[1]
     with open(source_path, "w") as fp:
         fp.write(source)
