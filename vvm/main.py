@@ -26,30 +26,6 @@ def get_vyper_version() -> Version:
     return wrapper._get_vyper_version(vyper_binary)
 
 
-def detect_vyper_version_from_source(source_code: str) -> Optional[str]:
-    """
-    Detect the version given by the pragma version in the source code.
-    TODO: when the user has a range, we should compare to the installed versions
-
-    Arguments
-    ---------
-    source_code : str
-        Source code to detect the version from.
-
-    Returns
-    -------
-    str
-        vyper version, or None if no version could be detected.
-    """
-    try:
-        finditer = VERSION_RE.finditer(source_code)
-        version_str = next(finditer).group(1)
-        Version(version_str)  # validate the version
-        return version_str
-    except (StopIteration, InvalidVersion):
-        return None
-
-
 def compile_source(
     source: str,
     base_path: Union[Path, str] = None,
@@ -88,8 +64,6 @@ def compile_source(
         Compiler output (depends on `output_format`).
         For JSON output the return type is a dictionary, otherwise it is a string.
     """
-    if vyper_version is None:
-        vyper_version = detect_vyper_version_from_source(source)
 
     with tempfile.NamedTemporaryFile(suffix=".vy", prefix="vyper-") as source_file:
         source_file.write(source.encode())
