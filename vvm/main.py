@@ -1,6 +1,6 @@
 import json
 import tempfile
-from pathlib import Path
+from pathlib import Path, WindowsPath
 from typing import Any, Dict, List, Optional, Union
 
 from packaging.version import Version
