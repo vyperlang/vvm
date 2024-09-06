@@ -1,13 +1,16 @@
 import json
+import re
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 
 from vvm import wrapper
 from vvm.exceptions import VyperError
 from vvm.install import get_executable
+
+VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+[=><^]?(\d+\.\d+\.\d+\S*)")
 
 
 def get_vyper_version() -> Version:
@@ -43,7 +46,7 @@ def detect_vyper_version_from_source(source_code: str) -> Optional[str]:
         version_str = next(finditer).group(1)
         Version(version_str)  # validate the version
         return version_str
-    except (StopIteration, InvalidVersion):
+    except (StopIteration, InvalidVersion) as e:
         return None
 
 
