@@ -6,14 +6,14 @@ import vvm
 
 def test_compile_source(foo_source, all_versions):
     if Version("0.4.0b1") <= all_versions <= Version("0.4.0b5"):
-        raise pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
+        pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
     output = vvm.compile_source(foo_source)
     assert "<stdin>" in output
 
 
 def test_compile_files(foo_path, all_versions):
     if Version("0.4.0b1") <= all_versions <= Version("0.4.0b5"):
-        raise pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
+        pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
     output = vvm.compile_files([foo_path])
     assert foo_path.as_posix() in output
 
