@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import pytest
-from requests import ConnectionError
 from packaging.version import Version
+from requests import ConnectionError
 
 import vvm
 
@@ -67,8 +67,10 @@ def all_versions(request):
 @pytest.fixture
 def foo_source(all_versions):
     visibility = "external" if all_versions >= Version("0.2.0") else "public"
+    interface = "IERC20" if all_versions >= Version("0.4.0a") else "ERC20"
+    import_path = "ethereum.ercs" if all_versions >= Version("0.4.0a") else "vyper.interfaces"
     yield f"""
-from vyper.interfaces import ERC20
+from {import_path} import {interface}
 
 @{visibility}
 def foo() -> int128:
