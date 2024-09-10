@@ -4,13 +4,17 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from packaging.version import InvalidVersion, Version
+from packaging.specifiers import SpecifierSet, InvalidSpecifier, Specifier
+from packaging.version import Version
 
 from vvm import wrapper
 from vvm.exceptions import VyperError
-from vvm.install import get_executable
+from vvm.install import get_executable, get_installed_vyper_versions, get_installable_vyper_versions
 
-VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+[=><^]?(\d+\.\d+\.\d+\S*)")
+_VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+([=><^~]*)(\d+\.\d+\.\d+\S*)")
+
+# this is used to convert from the npm-style (before 0.4) to the pypi-style (0.4+)
+_SPECIFIER_OVERRIDES = {"^": "~=", "~": ">="}
 
 
 def get_vyper_version() -> Version:
@@ -26,10 +30,9 @@ def get_vyper_version() -> Version:
     return wrapper._get_vyper_version(vyper_binary)
 
 
-def detect_vyper_version_from_source(source_code: str) -> Optional[Version]:
+def detect_version_specifier(source_code: str) -> Optional[Specifier]:
     """
     Detect the version given by the pragma version in the source code.
-    TODO: when the user has a range, we should compare to the installed versions
 
     Arguments
     ---------
@@ -42,10 +45,48 @@ def detect_vyper_version_from_source(source_code: str) -> Optional[Version]:
         vyper version, or None if no version could be detected.
     """
     try:
-        finditer = VERSION_RE.finditer(source_code)
-        return Version(next(finditer).group(1))
-    except (StopIteration, InvalidVersion) as e:
+        match = next(_VERSION_RE.finditer(source_code))
+        specifier, version_str = match.groups()
+        if specifier in ("~", "^"):
+            # convert from npm-style to pypi-style
+            if specifier == "^":
+                # minor match, remove the patch from the version
+                version_str = ".".join(version_str.split(".")[:-1])
+            specifier = "~="  # finds compatible versions
+        specifier = _SPECIFIER_OVERRIDES.get(specifier, specifier) or "=="
+        return Specifier(specifier + version_str)
+    except (StopIteration, InvalidSpecifier):
         return None
+
+
+def pick_vyper_version(specifier: Specifier, prereleases: bool | None = None) -> Version:
+    """
+    Pick the latest vyper version that is installed and satisfies the given specifier.
+    If None of the installed versions satisfy the specifier, pick the latest installable
+    version.
+
+    Arguments
+    ---------
+    specifier : SpecifierSet
+        Specifier to pick a version for.
+    prereleases : bool, optional
+        Whether to allow prereleases in the returned iterator. If set to
+        ``None`` (the default), it will be intelligently decide whether to allow
+        prereleases or not (based on the specifier.prereleases attribute, and
+        whether the only versions matching are prereleases).
+
+    Returns
+    -------
+    Version
+        Vyper version that satisfies the specifier, or None if no version satisfies the specifier.
+    """
+    try:
+        return next(specifier.filter(get_installed_vyper_versions(), prereleases))
+    except StopIteration:
+        try:
+            return next(specifier.filter(get_installable_vyper_versions(), prereleases))
+        except StopIteration:
+            raise ValueError(f"No installable Vyper satisfies the specifier {specifier}")
 
 
 def compile_source(
@@ -54,6 +95,7 @@ def compile_source(
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
+    detect_version: bool = False,
 ) -> Dict:
     """
     Compile a Vyper contract.
@@ -76,6 +118,9 @@ def compile_source(
     vyper_version: Version, optional
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
+    detect_version: bool, optional
+        If True, detect the version from the source code and use that as the
+        `vyper_version`. If False, raise a `TypeError` if `vyper_version` is not given.
 
     Returns
     -------
@@ -83,7 +128,10 @@ def compile_source(
         Compiler output. The source file name is given as `<stdin>`.
     """
     if vyper_version is None:
-        vyper_version = detect_vyper_version_from_source(source)
+        if detect_version is not True:
+            raise TypeError("detect_version must be True if vyper_version is not given")
+        version = detect_version_specifier(source)
+        vyper_version = pick_vyper_version(version)
 
     source_path = tempfile.mkstemp(suffix=".vy", prefix="vyper-", text=True)[1]
     with open(source_path, "w") as fp:

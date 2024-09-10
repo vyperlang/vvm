@@ -65,11 +65,17 @@ def all_versions(request):
 
 
 @pytest.fixture
+def latest_version():
+    global VERSIONS
+    return VERSIONS[0]
+
+
+@pytest.fixture
 def foo_source(all_versions):
     visibility = "external" if all_versions >= Version("0.2.0") else "public"
     pragma_version = "pragma version" if all_versions >= Version("0.3.10") else "@version"
     yield f"""
-#{pragma_version} ^{all_versions}
+#{pragma_version} {all_versions}
 from vyper.interfaces import ERC20
 
 @{visibility}

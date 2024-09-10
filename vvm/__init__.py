@@ -9,6 +9,7 @@ from vvm.main import (
     compile_files,
     compile_source,
     compile_standard,
-    detect_vyper_version_from_source,
+    detect_version_specifier,
+    pick_vyper_version,
     get_vyper_version,
 )
