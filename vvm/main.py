@@ -95,7 +95,6 @@ def compile_source(
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Version = None,
-    detect_version: bool = False,
 ) -> Dict:
     """
     Compile a Vyper contract.
@@ -118,21 +117,12 @@ def compile_source(
     vyper_version: Version, optional
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
-    detect_version: bool, optional
-        If True, detect the version from the source code and use that as the
-        `vyper_version`. If False, raise a `TypeError` if `vyper_version` is not given.
 
     Returns
     -------
     Dict
         Compiler output. The source file name is given as `<stdin>`.
     """
-    if vyper_version is None:
-        if detect_version is not True:
-            raise TypeError("detect_version must be True if vyper_version is not given")
-        version = detect_version_specifier(source)
-        vyper_version = pick_vyper_version(version)
-
     source_path = tempfile.mkstemp(suffix=".vy", prefix="vyper-", text=True)[1]
     with open(source_path, "w") as fp:
         fp.write(source)
