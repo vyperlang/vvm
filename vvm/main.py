@@ -126,7 +126,7 @@ def _compile(
         vyper_binary = get_executable(vyper_version)
 
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f="combined_json", p=base_path,  **kwargs
+        vyper_binary=vyper_binary, f="combined_json", p=base_path, **kwargs
     )
 
     return json.loads(stdoutdata)
