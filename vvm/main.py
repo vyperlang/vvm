@@ -65,7 +65,7 @@ def compile_source(
         vyper_binary=vyper_binary,
         vyper_version=vyper_version,
         source_files=[source_path],
-        base_path=base_path,
+        base_path=base_path or Path(source_path).parent,
         evm_version=evm_version,
     )
 
