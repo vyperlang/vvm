@@ -69,9 +69,9 @@ def foo_source(vyper_version):
     visibility = "external" if vyper_version >= Version("0.2.0") else "public"
     interface = "IERC20" if vyper_version >= Version("0.4.0a") else "ERC20"
     import_path = "ethereum.ercs" if vyper_version >= Version("0.4.0a") else "vyper.interfaces"
-    pragma_version = "pragma version" if vyper_version >= Version("0.3.10") else "@version"
+    pragma_version = "pragma version" if vyper_version >= Version("0.3.8") else "@version"
     yield f"""
-#{pragma_version} ^{vyper_version}
+#{pragma_version} {vyper_version}
 from {import_path} import {interface}
 
 @{visibility}
@@ -82,7 +82,7 @@ def foo() -> int128:
 
 @pytest.fixture
 def foo_path(tmp_path_factory, foo_source, vyper_version):
-    source = tmp_path_factory.getbasetemp().joinpath(f"Foo-{vyper_version}.sol")
+    source = tmp_path_factory.getbasetemp().joinpath(f"Foo-{vyper_version}.vy")
     if not source.exists():
         with source.open("w") as fp:
             fp.write(foo_source)
