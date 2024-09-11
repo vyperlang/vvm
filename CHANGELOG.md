@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased](https://github.com/vyperlang/vvm/)
 ### Changed
 - Update contact information in `CONTRIBUTING.md`
+- Update dependencies. Minimum python version is now 3.8 ([#22](https://github.com/vyperlang/vvm/pull/22))
 - New public function `detect_vyper_version_from_source`. Automatically detect the Vyper version when compiling from source ([#23](https://github.com/vyperlang/vvm/pull/23))
 
 ## [0.1.0](https://github.com/vyperlang/vvm/tree/v0.1.0) - 2020-10-07

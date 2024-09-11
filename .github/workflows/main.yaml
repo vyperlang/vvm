@@ -28,98 +28,37 @@ jobs:
     - name: Run Tox
       run: tox -e lint
 
-  py36:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Python 3.6
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.6
-
-    - name: Install Tox
-      run: pip install tox wheel
-
-    - name: Run Tox
-      run: tox -e py36
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-
-  py37:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Python 3.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-
-    - name: Install Tox
-      run: pip install tox wheel
-
-    - name: Run Tox
-      run: tox -e py37
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-
-  py38:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install Tox
-      run: pip install tox wheel
-
-    - name: Run Tox
-      run: tox -e py38
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-
-  py39:
-    runs-on: ${{ matrix.os }}
+  test:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
+        python-version: [["3.8", "38"], ["3.9", "39"], ["3.10", "310"], ["3.11", "311"], ["3.12", "312"]]
+        include:
+          - os: macos-latest
+            python-version: ["3.11", "311"]
+          - os: windows-latest
+            python-version: ["3.11", "311"]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    - name: Setup Python 3.9
+    - name: Setup Python ${{ matrix.python-version[0] }}
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: ${{ matrix.python-version[0] }}
 
     - name: Install Tox
       run: pip install tox wheel
 
     - name: Run Tox
-      run: tox -e py39
+      run: tox -e py${{ matrix.python-version[1] }}
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
         file: ./coverage.xml
-        fail_ci_if_error: true
+        # for now not failing, this may be reverted once we set it up properly
+        fail_ci_if_error: false
