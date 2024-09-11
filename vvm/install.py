@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 import stat
@@ -162,6 +163,7 @@ def _get_releases(headers: Optional[Dict]) -> Dict:
     return data.json()
 
 
+@functools.lru_cache(maxsize=1, typed=False)
 def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
     """
     Return a list of all `vyper` versions that can be installed by vvm.
