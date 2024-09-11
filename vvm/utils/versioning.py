@@ -26,7 +26,7 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
     Returns
     -------
     str
-        vyper version, or None if no version could be detected.
+        vyper version specifier, or None if none could be detected.
     """
     try:
         match = next(_VERSION_RE.finditer(source_code))
