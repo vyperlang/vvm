@@ -2,7 +2,7 @@ import itertools
 import re
 from typing import Optional
 
-from packaging.specifiers import InvalidSpecifier, Specifier, SpecifierSet
+from packaging.specifiers import InvalidSpecifier, Specifier
 from packaging.version import Version
 
 from vvm.exceptions import UnexpectedVersionError
@@ -45,7 +45,7 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
 
 def _pick_vyper_version(
     specifier: Specifier,
-    prereleases: bool | None = None,
+    prereleases: Optional[bool] = None,
     check_installed=True,
     check_installable=True,
 ) -> Version:
@@ -56,7 +56,7 @@ def _pick_vyper_version(
 
     Arguments
     ---------
-    specifier : SpecifierSet
+    specifier : Specifier
         Specifier to pick a version for.
     prereleases : bool, optional
         Whether to allow prereleases in the returned iterator. If set to
