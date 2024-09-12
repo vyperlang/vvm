@@ -28,8 +28,9 @@ def compile_source(
     base_path: Union[Path, str] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
-    vyper_version: Version = None,
-) -> Dict:
+    vyper_version: Union[str, Version, None] = None,
+    output_format: str = None,
+) -> Any:
     """
     Compile a Vyper contract.
 
@@ -51,25 +52,32 @@ def compile_source(
     vyper_version: Version, optional
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
+    output_format: str, optional
+        Output format of the compiler. See `vyper --help` for more information.
 
     Returns
     -------
-    Dict
-        Compiler output. The source file name is given as `<stdin>`.
+    Any
+        Compiler output (depends on `output_format`).
+        For JSON output the return type is a dictionary, otherwise it is a string.
     """
-    source_path = tempfile.mkstemp(suffix=".vy", prefix="vyper-", text=True)[1]
-    with open(source_path, "w") as fp:
-        fp.write(source)
 
-    compiler_data = _compile(
-        vyper_binary=vyper_binary,
-        vyper_version=vyper_version,
-        source_files=[source_path],
-        base_path=base_path,
-        evm_version=evm_version,
-    )
+    with tempfile.NamedTemporaryFile(suffix=".vy", prefix="vyper-") as source_file:
+        source_file.write(source.encode())
+        source_file.flush()
 
-    return {"<stdin>": list(compiler_data.values())[0]}
+        compiler_data = _compile(
+            vyper_binary=vyper_binary,
+            vyper_version=vyper_version,
+            source_files=[source_file.name],
+            base_path=base_path,
+            evm_version=evm_version,
+            output_format=output_format,
+        )
+
+    if output_format in ("combined_json", None):
+        return {"<stdin>": list(compiler_data.values())[0]}
+    return compiler_data
 
 
 def compile_files(
@@ -77,8 +85,9 @@ def compile_files(
     base_path: Union[Path, str] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
-    vyper_version: Version = None,
-) -> Dict:
+    vyper_version: Union[str, Version, None] = None,
+    output_format: str = None,
+) -> Any:
     """
     Compile one or more Vyper source files.
 
@@ -100,11 +109,14 @@ def compile_files(
     vyper_version: Version, optional
         `vyper` version to use. If not given, the currently active version is used.
         Ignored if `vyper_binary` is also given.
+    output_format: str, optional
+        Output format of the compiler. See `vyper --help` for more information.
 
     Returns
     -------
-    Dict
-        Compiler output
+    Any
+        Compiler output (depends on `output_format`).
+        For JSON output the return type is a dictionary, otherwise it is a string.
     """
     return _compile(
         vyper_binary=vyper_binary,
@@ -112,24 +124,30 @@ def compile_files(
         source_files=source_files,
         base_path=base_path,
         evm_version=evm_version,
+        output_format=output_format,
     )
 
 
 def _compile(
     base_path: Union[str, Path, None],
     vyper_binary: Union[str, Path, None],
-    vyper_version: Optional[Version],
+    vyper_version: Union[str, Version, None],
+    output_format: Optional[str],
     **kwargs: Any,
-) -> Dict:
+) -> Any:
 
     if vyper_binary is None:
         vyper_binary = get_executable(vyper_version)
+    if output_format is None:
+        output_format = "combined_json"
 
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f="combined_json", p=base_path, **kwargs
+        vyper_binary=vyper_binary, f=output_format, p=base_path, **kwargs
     )
 
-    return json.loads(stdoutdata)
+    if output_format in ("combined_json", "standard_json", "metadata"):
+        return json.loads(stdoutdata)
+    return stdoutdata
 
 
 def compile_standard(

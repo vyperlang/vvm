@@ -43,19 +43,19 @@ def pytest_collection(session):
             vvm.install_vyper(version)
 
 
-# auto-parametrize the all_versions fixture with all target vyper versions
+# auto-parametrize the vyper_version fixture with all target vyper versions
 def pytest_generate_tests(metafunc):
-    if "all_versions" in metafunc.fixturenames:
+    if "vyper_version" in metafunc.fixturenames:
         versions = VERSIONS.copy()
         for marker in metafunc.definition.iter_markers(name="min_vyper"):
             versions = [i for i in versions if i >= Version(marker.args[0])]
         for marker in metafunc.definition.iter_markers(name="max_vyper"):
             versions = [i for i in versions if i <= Version(marker.args[0])]
-        metafunc.parametrize("all_versions", versions, indirect=True)
+        metafunc.parametrize("vyper_version", versions, indirect=True)
 
 
 @pytest.fixture
-def all_versions(request):
+def vyper_version(request):
     """
     Run a test against all vyper versions.
     """
@@ -65,11 +65,13 @@ def all_versions(request):
 
 
 @pytest.fixture
-def foo_source(all_versions):
-    visibility = "external" if all_versions >= Version("0.2.0") else "public"
-    interface = "IERC20" if all_versions >= Version("0.4.0a") else "ERC20"
-    import_path = "ethereum.ercs" if all_versions >= Version("0.4.0a") else "vyper.interfaces"
+def foo_source(vyper_version):
+    visibility = "external" if vyper_version >= Version("0.2.0") else "public"
+    interface = "IERC20" if vyper_version >= Version("0.4.0a") else "ERC20"
+    import_path = "ethereum.ercs" if vyper_version >= Version("0.4.0a") else "vyper.interfaces"
+    pragma_version = "pragma version" if vyper_version >= Version("0.3.8") else "@version"
     yield f"""
+#{pragma_version} {vyper_version}
 from {import_path} import {interface}
 
 @{visibility}
@@ -79,8 +81,8 @@ def foo() -> int128:
 
 
 @pytest.fixture
-def foo_path(tmp_path_factory, foo_source, all_versions):
-    source = tmp_path_factory.getbasetemp().joinpath(f"Foo-{all_versions}.sol")
+def foo_path(tmp_path_factory, foo_source, vyper_version):
+    source = tmp_path_factory.getbasetemp().joinpath(f"Foo-{vyper_version}.vy")
     if not source.exists():
         with source.open("w") as fp:
             fp.write(foo_source)
@@ -88,7 +90,7 @@ def foo_path(tmp_path_factory, foo_source, all_versions):
 
 
 @pytest.fixture
-def input_json(all_versions):
+def input_json(vyper_version):
     json = {
         "language": "Vyper",
         "sources": {},

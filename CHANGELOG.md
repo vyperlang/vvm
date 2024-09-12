@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update contact information in `CONTRIBUTING.md`
 - Update dependencies. Minimum python version is now 3.8 ([#22](https://github.com/vyperlang/vvm/pull/22))
+- Add `output_format` argument to `compile_source` and `compile_files` ([#21](https://github.com/vyperlang/vvm/pull/21))
 
 ## [0.1.0](https://github.com/vyperlang/vvm/tree/v0.1.0) - 2020-10-07
 ### Added
