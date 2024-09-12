@@ -55,5 +55,5 @@ def test_no_version_in_source():
 
 def test_version_does_not_exist(all_versions):
     with pytest.raises(UnexpectedVersionError) as excinfo:
-        detect_vyper_version_from_source(f"# pragma version 2024.0.1")
+        detect_vyper_version_from_source("# pragma version 2024.0.1")
     assert str(excinfo.value) == "No installable Vyper satisfies the specifier ==2024.0.1"
