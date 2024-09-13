@@ -10,9 +10,6 @@ from vvm.install import get_installable_vyper_versions, get_installed_vyper_vers
 
 _VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+([=><^~]*)(\d+\.\d+\.\d+\S*)")
 
-# this is used to convert from the npm-style (before 0.4) to the pypi-style (0.4+)
-_SPECIFIER_OVERRIDES = {"^": "~=", "~": ">="}
-
 
 def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
     """
@@ -39,10 +36,12 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
             # minor match, remove the patch from the version
             version_str = ".".join(version_str.split(".")[:-1])
         specifier = "~="  # finds compatible versions
-    specifier = _SPECIFIER_OVERRIDES.get(specifier, specifier) or "=="
+
+    if specifier == "":
+        specifier = "=="
     try:
         return Specifier(specifier + version_str)
-    except (StopIteration, InvalidSpecifier):
+    except InvalidSpecifier:
         return None
 
 
@@ -76,11 +75,14 @@ def _pick_vyper_version(
     Version
         Vyper version that satisfies the specifier, or None if no version satisfies the specifier.
     """
-    versions = itertools.chain(
-        get_installed_vyper_versions() if check_installed else [],
-        get_installable_vyper_versions() if check_installable else [],
+    versions = list(
+        itertools.chain(
+            get_installed_vyper_versions() if check_installed else [],
+            get_installable_vyper_versions() if check_installable else [],
+        )
     )
-    if ret := next((specifier.filter(versions, prereleases)), None) is None:
+    filtered = list(specifier.filter(versions, prereleases))
+    if (ret := next(iter(filtered), None)) is None:
         raise UnexpectedVersionError(f"No installable Vyper satisfies the specifier {specifier}")
     return ret
 

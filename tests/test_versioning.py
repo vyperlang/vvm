@@ -13,11 +13,11 @@ LAST_PER_MINOR = {
 }
 
 
-def test_foo_vyper_version(foo_source, all_versions):
+def test_foo_vyper_version(foo_source, vyper_version):
     specifier = _detect_version_specifier(foo_source)
-    assert str(specifier) == f"=={all_versions}"
-    assert all_versions.major == 0
-    assert _pick_vyper_version(specifier) == all_versions
+    assert str(specifier) == f"=={vyper_version}"
+    assert vyper_version.major == 0
+    assert _pick_vyper_version(specifier) == vyper_version
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,7 @@ def test_no_version_in_source():
     assert str(excinfo.value) == "No version detected in source code"
 
 
-def test_version_does_not_exist(all_versions):
+def test_version_does_not_exist():
     with pytest.raises(UnexpectedVersionError) as excinfo:
         detect_vyper_version_from_source("# pragma version 2024.0.1")
     assert str(excinfo.value) == "No installable Vyper satisfies the specifier ==2024.0.1"
