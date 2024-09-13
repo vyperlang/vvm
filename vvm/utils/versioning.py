@@ -1,6 +1,6 @@
 import itertools
 import re
-from typing import Optional
+from typing import Optional, Any
 
 from packaging.specifiers import InvalidSpecifier, Specifier
 from packaging.version import Version
@@ -48,8 +48,8 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
 def _pick_vyper_version(
     specifier: Specifier,
     prereleases: Optional[bool] = None,
-    check_installed=True,
-    check_installable=True,
+    check_installed: bool = True,
+    check_installable: bool = True,
 ) -> Version:
     """
     Pick the latest vyper version that is installed and satisfies the given specifier.
@@ -87,7 +87,7 @@ def _pick_vyper_version(
     return ret
 
 
-def detect_vyper_version_from_source(source_code: str, **kwargs) -> Version:
+def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Version:
     """
     Detect the version given by the pragma version in the source code.
 
