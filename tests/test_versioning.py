@@ -13,7 +13,7 @@ LAST_PER_MINOR = {
 }
 
 
-def test_foo_vyper_version(foo_source, all_versions, latest_version):
+def test_foo_vyper_version(foo_source, all_versions):
     specifier = _detect_version_specifier(foo_source)
     assert str(specifier) == f"=={all_versions}"
     assert all_versions.major == 0

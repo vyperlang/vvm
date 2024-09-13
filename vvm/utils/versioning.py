@@ -28,16 +28,19 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
     str
         vyper version specifier, or None if none could be detected.
     """
+    match = _VERSION_RE.search(source_code)
+    if match is None:
+        return None
+
+    specifier, version_str = match.groups()
+    if specifier in ("~", "^"):
+        # convert from npm-style to pypi-style
+        if specifier == "^":
+            # minor match, remove the patch from the version
+            version_str = ".".join(version_str.split(".")[:-1])
+        specifier = "~="  # finds compatible versions
+    specifier = _SPECIFIER_OVERRIDES.get(specifier, specifier) or "=="
     try:
-        match = next(_VERSION_RE.finditer(source_code))
-        specifier, version_str = match.groups()
-        if specifier in ("~", "^"):
-            # convert from npm-style to pypi-style
-            if specifier == "^":
-                # minor match, remove the patch from the version
-                version_str = ".".join(version_str.split(".")[:-1])
-            specifier = "~="  # finds compatible versions
-        specifier = _SPECIFIER_OVERRIDES.get(specifier, specifier) or "=="
         return Specifier(specifier + version_str)
     except (StopIteration, InvalidSpecifier):
         return None
@@ -77,10 +80,9 @@ def _pick_vyper_version(
         get_installed_vyper_versions() if check_installed else [],
         get_installable_vyper_versions() if check_installable else [],
     )
-    try:
-        return next(specifier.filter(versions, prereleases))
-    except StopIteration:
+    if ret := next((specifier.filter(versions, prereleases)), None) is None:
         raise UnexpectedVersionError(f"No installable Vyper satisfies the specifier {specifier}")
+    return ret
 
 
 def detect_vyper_version_from_source(source_code: str, **kwargs) -> Version:
