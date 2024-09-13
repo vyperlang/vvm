@@ -4,15 +4,15 @@ from packaging.version import Version
 import vvm
 
 
-def test_compile_source(foo_source, all_versions):
-    if Version("0.4.0b1") <= all_versions <= Version("0.4.0b5"):
+def test_compile_source(foo_source, vyper_version):
+    if Version("0.4.0b1") <= vyper_version <= Version("0.4.0b5"):
         pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
     output = vvm.compile_source(foo_source)
     assert "<stdin>" in output
 
 
-def test_compile_files(foo_path, all_versions):
-    if Version("0.4.0b1") <= all_versions <= Version("0.4.0b5"):
+def test_compile_files(foo_path, vyper_version):
+    if Version("0.4.0b1") <= vyper_version <= Version("0.4.0b5"):
         pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
     output = vvm.compile_files([foo_path])
     assert foo_path.as_posix() in output
@@ -35,3 +35,17 @@ def foo() -> int128:
     return 42
     """
     vvm.compile_source(source, vyper_version=version_str)
+
+
+def test_compile_metadata(foo_source, vyper_version):
+    if vyper_version <= Version("0.3.1"):
+        pytest.skip("metadata output not supported in vyper < 0.3.2")
+    output = vvm.compile_source(foo_source, output_format="metadata")
+    assert "function_info" in output
+
+
+def test_compile_metadata_from_file(foo_path, vyper_version):
+    if vyper_version <= Version("0.3.1"):
+        pytest.skip("metadata output not supported in vyper < 0.3.2")
+    output = vvm.compile_files([foo_path], output_format="metadata")
+    assert "function_info" in output
