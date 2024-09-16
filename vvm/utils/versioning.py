@@ -11,7 +11,7 @@ from vvm.install import get_installable_vyper_versions, get_installed_vyper_vers
 _VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+([=><^~]*)(\d+\.\d+\.\d+\S*)")
 
 
-def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
+def _detect_version_specifier(source_code: str) -> Specifier:
     """
     Detect the version given by the pragma version in the source code.
 
@@ -27,22 +27,17 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
     """
     match = _VERSION_RE.search(source_code)
     if match is None:
-        return None
+        raise UnexpectedVersionError("No version detected in source code")
 
     specifier, version_str = match.groups()
-    if specifier in ("~", "^"):
-        # convert from npm-style to pypi-style
-        if specifier == "^":
-            # minor match, remove the patch from the version
+    if specifier in ("~", "^"):  # convert from npm-style to pypi-style
+        if specifier == "^":  # minor match, remove the patch from the version
             version_str = ".".join(version_str.split(".")[:-1])
         specifier = "~="  # finds compatible versions
 
     if specifier == "":
         specifier = "=="
-    try:
-        return Specifier(specifier + version_str)
-    except InvalidSpecifier:
-        return None
+    return Specifier(specifier + version_str)
 
 
 def _pick_vyper_version(
@@ -75,14 +70,11 @@ def _pick_vyper_version(
     Version
         Vyper version that satisfies the specifier, or None if no version satisfies the specifier.
     """
-    versions = list(
-        itertools.chain(
-            get_installed_vyper_versions() if check_installed else [],
-            get_installable_vyper_versions() if check_installable else [],
-        )
+    versions = itertools.chain(
+        get_installed_vyper_versions() if check_installed else [],
+        get_installable_vyper_versions() if check_installable else [],
     )
-    filtered = list(specifier.filter(versions, prereleases))
-    if (ret := next(iter(filtered), None)) is None:
+    if (ret := next(specifier.filter(versions, prereleases), None)) is None:
         raise UnexpectedVersionError(f"No installable Vyper satisfies the specifier {specifier}")
     return ret
 
@@ -104,6 +96,4 @@ def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Version
         vyper version, or None if no version could be detected.
     """
     specifier = _detect_version_specifier(source_code)
-    if specifier is None:
-        raise UnexpectedVersionError("No version detected in source code")
     return _pick_vyper_version(specifier, **kwargs)
