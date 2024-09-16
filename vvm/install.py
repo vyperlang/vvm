@@ -6,7 +6,7 @@ import sys
 import warnings
 from base64 import b64encode
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, Iterable, List, Optional, Union
 
 import requests
 from packaging.version import Version
@@ -163,7 +163,6 @@ def _get_releases(headers: Optional[Dict]) -> Dict:
     return data.json()
 
 
-@functools.lru_cache(maxsize=1, typed=False)
 def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
     """
     Return a list of all `vyper` versions that can be installed by vvm.
@@ -173,9 +172,16 @@ def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
     List
         List of Versions objects of installable `vyper` versions.
     """
+    if headers is None:
+        headers = {}
+    return _get_installable_vyper_versions(frozenset(headers.items()))
+
+
+@functools.lru_cache(maxsize=1, typed=False)
+def _get_installable_vyper_versions(frozen_dict: Iterable) -> List[Version]:
     version_list = []
 
-    headers = _get_headers(headers)
+    headers = _get_headers(dict(frozen_dict))
 
     for release in _get_releases(headers):
         version = Version(release["tag_name"])
