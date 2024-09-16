@@ -35,6 +35,7 @@ LOGGER = logging.getLogger("vvm")
 VVM_BINARY_PATH_VARIABLE = "VVM_BINARY_PATH"
 
 _default_vyper_binary = None
+_installable_vyper_versions: Optional[List[Version]] = None
 
 
 def _get_os_name() -> str:
@@ -166,11 +167,19 @@ def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
     """
     Return a list of all `vyper` versions that can be installed by vvm.
 
+    Note: this function is cached, so subsequent calls will not change the result.
+    When new versions of vyper are released, the cache will need to be cleared
+    manually or the application restarted.
+
     Returns
     -------
     List
         List of Versions objects of installable `vyper` versions.
     """
+    global _installable_vyper_versions
+    if _installable_vyper_versions is not None:
+        return _installable_vyper_versions
+
     version_list = []
 
     headers = _get_headers(headers)
@@ -180,7 +189,9 @@ def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
         asset = next((i for i in release["assets"] if _get_os_name() in i["name"]), False)
         if asset:
             version_list.append(version)
-    return sorted(version_list, reverse=True)
+
+    _installable_vyper_versions = sorted(version_list, reverse=True)
+    return _installable_vyper_versions
 
 
 def get_installed_vyper_versions(vvm_binary_path: Union[Path, str] = None) -> List[Version]:

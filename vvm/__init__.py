@@ -6,3 +6,4 @@ from vvm.install import (
     set_vyper_version,
 )
 from vvm.main import compile_files, compile_source, compile_standard, get_vyper_version
+from vvm.utils.versioning import detect_vyper_version_from_source

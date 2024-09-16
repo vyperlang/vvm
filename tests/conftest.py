@@ -65,6 +65,12 @@ def vyper_version(request):
 
 
 @pytest.fixture
+def latest_version():
+    global VERSIONS
+    return VERSIONS[0]
+
+
+@pytest.fixture
 def foo_source(vyper_version):
     visibility = "external" if vyper_version >= Version("0.2.0") else "public"
     interface = "IERC20" if vyper_version >= Version("0.4.0a") else "ERC20"
