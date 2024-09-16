@@ -2,7 +2,7 @@ import itertools
 import re
 from typing import Any, Optional
 
-from packaging.specifiers import InvalidSpecifier, Specifier
+from packaging.specifiers import Specifier
 from packaging.version import Version
 
 from vvm.exceptions import UnexpectedVersionError
