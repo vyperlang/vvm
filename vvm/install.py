@@ -190,7 +190,8 @@ def get_installable_vyper_versions(headers: Dict = None) -> List[Version]:
         if asset:
             version_list.append(version)
 
-    return (_installable_vyper_versions := sorted(version_list, reverse=True))
+    _installable_vyper_versions = sorted(version_list, reverse=True)
+    return _installable_vyper_versions
 
 
 def get_installed_vyper_versions(vvm_binary_path: Union[Path, str] = None) -> List[Version]:
