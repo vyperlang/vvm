@@ -31,8 +31,11 @@ def _detect_version_specifier(source_code: str) -> Specifier:
 
     specifier, version_str = match.groups()
     if specifier in ("~", "^"):  # convert from npm-style to pypi-style
-        if specifier == "^":  # minor match, remove the patch from the version
+        if specifier == "^" and not version_str.startswith("0."):
+            # Minor match, remove the patch from the version
+            # Note: not for 0.x versions, they should only match minor versions
             version_str = ".".join(version_str.split(".")[:-1])
+
         specifier = "~="  # finds compatible versions
 
     if specifier == "":
