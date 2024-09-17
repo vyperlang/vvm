@@ -56,7 +56,8 @@ def test_version_does_not_exist():
 
 def test_npm_version_for_04_release():
     with pytest.raises(UnexpectedVersionError) as excinfo:
-        detect_vyper_version_from_source("# pragma version ^0.4.0")
+        detect_vyper_version_from_source("# pragma version ^0.4.1")
 
-    expected_msg = "Please use the pypi-style version specifier for vyper versions >= 0.4.0"
-    assert str(excinfo.value) == expected_msg
+    assert str(excinfo.value) == (
+        "Please use the pypi-style version specifier for vyper versions >= 0.4.0 (hint: ~=0.4.1)"
+    )
