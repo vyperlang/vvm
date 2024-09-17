@@ -34,12 +34,7 @@ def _detect_version_specifier(source_code: str) -> Specifier:
         if Version(version_str) >= Version("0.4.0"):
             error = "Please use the pypi-style version specifier for vyper versions >= 0.4.0"
             raise UnexpectedVersionError(error)
-
-        if specifier == "^" and not version_str.startswith("0."):
-            # Minor match, remove the patch from the version
-            # Note: not for 0.x versions, they should only match minor versions
-            version_str = ".".join(version_str.split(".")[:-1])
-
+        # for v0.x, both specifiers are equivalent
         specifier = "~="  # finds compatible versions
 
     if specifier == "":
