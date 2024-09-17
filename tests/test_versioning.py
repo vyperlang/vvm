@@ -59,4 +59,4 @@ def test_npm_version_for_04_release():
         detect_vyper_version_from_source("# pragma version ^0.4.0")
 
     expected_msg = "Please use the pypi-style version specifier for vyper versions >= 0.4.0"
-    assert str(excinfo.value) == msg
+    assert str(excinfo.value) == expected_msg
