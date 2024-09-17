@@ -52,3 +52,12 @@ def test_version_does_not_exist():
     with pytest.raises(UnexpectedVersionError) as excinfo:
         detect_vyper_version_from_source("# pragma version 2024.0.1")
     assert str(excinfo.value) == "No installable Vyper satisfies the specifier ==2024.0.1"
+
+
+def test_npm_version_for_04_release():
+    with pytest.raises(UnexpectedVersionError) as excinfo:
+        detect_vyper_version_from_source("# pragma version ^0.4.0")
+    assert (
+        str(excinfo.value)
+        == "Please use the pypi-style version specifier for vyper versions >= 0.4.0"
+    )

@@ -31,6 +31,10 @@ def _detect_version_specifier(source_code: str) -> Specifier:
 
     specifier, version_str = match.groups()
     if specifier in ("~", "^"):  # convert from npm-style to pypi-style
+        if Version(version_str) >= Version("0.4.0"):
+            error = "Please use the pypi-style version specifier for vyper versions >= 0.4.0"
+            raise UnexpectedVersionError(error)
+
         if specifier == "^" and not version_str.startswith("0."):
             # Minor match, remove the patch from the version
             # Note: not for 0.x versions, they should only match minor versions
