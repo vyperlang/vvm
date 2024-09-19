@@ -43,9 +43,7 @@ def foo() -> int128:
 
 
 def test_no_version_in_source():
-    with pytest.raises(UnexpectedVersionError) as excinfo:
-        detect_vyper_version_from_source("def foo() -> int128: return 42")
-    assert str(excinfo.value) == "No version detected in source code"
+    assert detect_vyper_version_from_source("def foo() -> int128: return 42") is None
 
 
 def test_version_does_not_exist():

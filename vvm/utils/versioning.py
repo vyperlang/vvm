@@ -11,7 +11,7 @@ from vvm.install import get_installable_vyper_versions, get_installed_vyper_vers
 _VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+([=><^~]*)(\d+\.\d+\.\d+\S*)")
 
 
-def _detect_version_specifier(source_code: str) -> Specifier:
+def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
     """
     Detect the version given by the pragma version in the source code.
 
@@ -27,7 +27,7 @@ def _detect_version_specifier(source_code: str) -> Specifier:
     """
     match = _VERSION_RE.search(source_code)
     if match is None:
-        raise UnexpectedVersionError("No version detected in source code")
+        return None
 
     specifier, version_str = match.groups()
     if specifier in ("~", "^"):  # convert from npm-style to pypi-style
@@ -82,7 +82,7 @@ def _pick_vyper_version(
     return ret
 
 
-def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Version:
+def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Optional[Version]:
     """
     Detect the version given by the pragma version in the source code.
 
@@ -95,8 +95,10 @@ def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Version
 
     Returns
     -------
-    Version
+    Optional[Version]
         vyper version, or None if no version could be detected.
     """
     specifier = _detect_version_specifier(source_code)
+    if specifier is None:
+        return None
     return _pick_vyper_version(specifier, **kwargs)
