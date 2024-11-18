@@ -76,6 +76,8 @@ def compile_source(
         )
 
     if output_format in ("combined_json", None):
+        if "version" in compiler_data:
+            compiler_data.pop("version")
         return {"<stdin>": list(compiler_data.values())[0]}
     return compiler_data
 
