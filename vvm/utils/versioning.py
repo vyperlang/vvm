@@ -2,16 +2,15 @@ import itertools
 import re
 from typing import Any, Optional
 
-from packaging.specifiers import Specifier
+from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
 from vvm.exceptions import UnexpectedVersionError
 from vvm.install import get_installable_vyper_versions, get_installed_vyper_versions
 
-_VERSION_RE = re.compile(r"\s*#\s*(?:pragma\s+|@)version\s+([=><^~]*)(\d+\.\d+\.\d+\S*)")
+_VERSION_RE = re.compile(r"^(?:#\s*(?:@version|pragma\s+version)\s+(.*))", re.MULTILINE)
 
-
-def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
+def _detect_version_specifier(source_code: str) -> Optional[SpecifierSet]:
     """
     Detect the version given by the pragma version in the source code.
 
@@ -22,42 +21,40 @@ def _detect_version_specifier(source_code: str) -> Optional[Specifier]:
 
     Returns
     -------
-    str
-        vyper version specifier, or None if none could be detected.
+    Optional[SpecifierSet]
+        vyper version specifier set, or None if none could be detected.
     """
-    match = _VERSION_RE.search(source_code)
-    if match is None:
+    version_str = _VERSION_RE.findall(source_code)
+    if not version_str:
         return None
+    
+    version_str = version_str[0]
+    
+    # X.Y.Z or vX.Y.Z => ==X.Y.Z, ==vX.Y.Z
+    if re.match("[v0-9]", version_str):
+        version_str = "==" + version_str
+    # convert npm to pep440
+    version_str = re.sub("^\\^", "~=", version_str)
+    version_str = re.sub("^~(?!\\=)", "~=", version_str)
 
-    specifier, version_str = match.groups()
-    if specifier in ("~", "^"):  # convert from npm-style to pypi-style
-        if Version(version_str) >= Version("0.4.0"):
-            error = "Please use the pypi-style version specifier "
-            error += f"for vyper versions >= 0.4.0 (hint: try ~={version_str})"
-            raise UnexpectedVersionError(error)
-        # for v0.x, both specifiers are equivalent
-        specifier = "~="  # finds compatible versions
-
-    if specifier == "":
-        specifier = "=="
-    return Specifier(specifier + version_str)
+    return SpecifierSet(version_str)
 
 
 def _pick_vyper_version(
-    specifier: Specifier,
+    specifier_set: SpecifierSet,
     prereleases: Optional[bool] = None,
     check_installed: bool = True,
     check_installable: bool = True,
 ) -> Version:
     """
-    Pick the latest vyper version that is installed and satisfies the given specifier.
-    If None of the installed versions satisfy the specifier, pick the latest installable
+    Pick the latest vyper version that is installed and satisfies the given specifier set.
+    If None of the installed versions satisfy the specifier set, pick the latest installable
     version.
 
     Arguments
     ---------
-    specifier : Specifier
-        Specifier to pick a version for.
+    specifier_set : SpecifierSet
+        Specifier set to pick a version for.
     prereleases : bool, optional
         Whether to allow prereleases in the returned iterator. If set to
         ``None`` (the default), it will be intelligently decide whether to allow
@@ -71,14 +68,14 @@ def _pick_vyper_version(
     Returns
     -------
     Version
-        Vyper version that satisfies the specifier, or None if no version satisfies the specifier.
+        Vyper version that satisfies the specifier set, or None if no version satisfies the specifier set.
     """
     versions = itertools.chain(
         get_installed_vyper_versions() if check_installed else [],
         get_installable_vyper_versions() if check_installable else [],
     )
-    if (ret := next(specifier.filter(versions, prereleases), None)) is None:
-        raise UnexpectedVersionError(f"No installable Vyper satisfies the specifier {specifier}")
+    if (ret := next(specifier_set.filter(versions, prereleases), None)) is None:
+        raise UnexpectedVersionError(f"No installable Vyper satisfies the specifier {specifier_set}")
     return ret
 
 
@@ -98,7 +95,7 @@ def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Optiona
     Optional[Version]
         vyper version, or None if no version could be detected.
     """
-    specifier = _detect_version_specifier(source_code)
-    if specifier is None:
+    specifier_set = _detect_version_specifier(source_code)
+    if specifier_set is None:
         return None
-    return _pick_vyper_version(specifier, **kwargs)
+    return _pick_vyper_version(specifier_set, **kwargs)
