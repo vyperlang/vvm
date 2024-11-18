@@ -25,11 +25,11 @@ def _detect_version_specifier(source_code: str) -> Optional[SpecifierSet]:
     Optional[SpecifierSet]
         vyper version specifier set, or None if none could be detected.
     """
-    version_str = _VERSION_RE.findall(source_code)
-    if not version_str:
+    match = _VERSION_RE.findall(source_code)
+    if not match:
         return None
 
-    version_str = version_str[0]
+    version_str = match[0]
 
     # X.Y.Z or vX.Y.Z => ==X.Y.Z, ==vX.Y.Z
     if re.match("[v0-9]", version_str):
