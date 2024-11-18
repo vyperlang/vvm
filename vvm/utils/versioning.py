@@ -10,6 +10,7 @@ from vvm.install import get_installable_vyper_versions, get_installed_vyper_vers
 
 _VERSION_RE = re.compile(r"^(?:#\s*(?:@version|pragma\s+version)\s+(.*))", re.MULTILINE)
 
+
 def _detect_version_specifier(source_code: str) -> Optional[SpecifierSet]:
     """
     Detect the version given by the pragma version in the source code.
@@ -27,9 +28,9 @@ def _detect_version_specifier(source_code: str) -> Optional[SpecifierSet]:
     version_str = _VERSION_RE.findall(source_code)
     if not version_str:
         return None
-    
+
     version_str = version_str[0]
-    
+
     # X.Y.Z or vX.Y.Z => ==X.Y.Z, ==vX.Y.Z
     if re.match("[v0-9]", version_str):
         version_str = "==" + version_str
@@ -68,14 +69,16 @@ def _pick_vyper_version(
     Returns
     -------
     Version
-        Vyper version that satisfies the specifier set, or None if no version satisfies the specifier set.
+        Vyper version that satisfies the specifier set, or None if no version satisfies the set.
     """
     versions = itertools.chain(
         get_installed_vyper_versions() if check_installed else [],
         get_installable_vyper_versions() if check_installable else [],
     )
     if (ret := next(specifier_set.filter(versions, prereleases), None)) is None:
-        raise UnexpectedVersionError(f"No installable Vyper satisfies the specifier {specifier_set}")
+        raise UnexpectedVersionError(
+            f"No installable Vyper satisfies the specifier {specifier_set}"
+        )
     return ret
 
 
