@@ -76,9 +76,8 @@ def compile_source(
         )
 
     if output_format in ("combined_json", None):
-        # If someone was to compile a file named `version` (without extension),
-        # the json would contain a single entry that we would pop here.
-        # it is assumed that developers are not compiling files named `version`.
+        # Pop the version as it might be the first key in the dictionary
+        # We assumed the source file is not named `version` (without extension)
         compiler_data.pop("version", None)
         return {"<stdin>": list(compiler_data.values())[0]}
     return compiler_data
