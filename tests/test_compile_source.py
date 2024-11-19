@@ -9,6 +9,7 @@ def test_compile_source(foo_source, vyper_version):
         pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
     output = vvm.compile_source(foo_source)
     assert "<stdin>" in output
+    assert "bytecode" in output["<stdin>"]
 
 
 def test_compile_files(foo_path, vyper_version):
