@@ -4,7 +4,7 @@ from packaging.version import Version
 
 from vvm import detect_vyper_version_from_source
 from vvm.exceptions import UnexpectedVersionError
-from vvm.utils.versioning import detect_version_specifier_set, _pick_vyper_version
+from vvm.utils.versioning import _pick_vyper_version, detect_version_specifier_set
 
 
 def test_foo_vyper_version(foo_source, vyper_version):
