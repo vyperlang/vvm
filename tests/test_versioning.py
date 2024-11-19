@@ -4,11 +4,11 @@ from packaging.version import Version
 
 from vvm import detect_vyper_version_from_source
 from vvm.exceptions import UnexpectedVersionError
-from vvm.utils.versioning import _detect_version_specifier, _pick_vyper_version
+from vvm.utils.versioning import detect_version_specifier_set, _pick_vyper_version
 
 
 def test_foo_vyper_version(foo_source, vyper_version):
-    specifier = _detect_version_specifier(foo_source)
+    specifier = detect_version_specifier_set(foo_source)
     assert str(specifier) == f"=={vyper_version}"
     assert vyper_version.major == 0
     assert _pick_vyper_version(specifier) == vyper_version
@@ -37,7 +37,7 @@ def test_vyper_version(
 def foo() -> int128:
     return 42
     """
-    detected = _detect_version_specifier(source)
+    detected = detect_version_specifier_set(source)
     assert detected == SpecifierSet(expected_specifier_set)
     if expected_version == "latest":
         expected_version = str(latest_version)

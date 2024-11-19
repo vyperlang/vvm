@@ -11,14 +11,14 @@ from vvm.install import get_installable_vyper_versions, get_installed_vyper_vers
 _VERSION_RE = re.compile(r"^(?:#\s*(?:@version|pragma\s+version)\s+(.*))", re.MULTILINE)
 
 
-def _detect_version_specifier(source_code: str) -> Optional[SpecifierSet]:
+def detect_version_specifier_set(source_code: str) -> Optional[SpecifierSet]:
     """
-    Detect the version given by the pragma version in the source code.
+    Detect the specifier set given by the pragma version in the source code.
 
     Arguments
     ---------
     source_code : str
-        Source code to detect the version from.
+        Source code to detect the specifier set from.
 
     Returns
     -------
@@ -98,7 +98,7 @@ def detect_vyper_version_from_source(source_code: str, **kwargs: Any) -> Optiona
     Optional[Version]
         vyper version, or None if no version could be detected.
     """
-    specifier_set = _detect_version_specifier(source_code)
+    specifier_set = detect_version_specifier_set(source_code)
     if specifier_set is None:
         return None
     return _pick_vyper_version(specifier_set, **kwargs)
