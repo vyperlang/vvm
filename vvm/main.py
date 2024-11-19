@@ -78,6 +78,8 @@ def compile_source(
     if output_format in ("combined_json", None):
         # Pop the version as it might be the first key in the dictionary
         # We assumed the source file is not named `version` (without extension)
+        # vyper 0.4.0 and up puts version at the front of the dict, which breaks
+        # the `list(compiler_data.values())[0]` on the next line, so remove it.
         compiler_data.pop("version", None)
         return {"<stdin>": list(compiler_data.values())[0]}
     return compiler_data
