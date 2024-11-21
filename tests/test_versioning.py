@@ -22,7 +22,7 @@ def test_foo_vyper_version(foo_source, vyper_version):
         ("^0.4.0", "external", "pragma version", "~=0.4.0", "0.4.0"),
         ("^0.1.0b16", "public", "@version", "~=0.1.0b16", "0.1.0b17"),
         # indented comment is supported
-        ("    0.4.0", "external", "pragma version", "==0.4.0", "0.4.0"),
+        ("0.4.0", "external", "    pragma version", "==0.4.0", "0.4.0"),
         # pep440 >= and < are preserved
         (">=0.3.10, <0.4.0", "external", "pragma version", ">=0.3.10, <0.4.0", "0.3.10"),
         # beta and release candidate are supported
@@ -59,7 +59,7 @@ def foo() -> int128:
     ],
 )
 def test_unsported_vyper_version(version_str):
-    # npm's complex ranges are not supported although old vyper version can handle them
+    # npm's complex ranges are not supported although old vyper versions can handle them
     source = f"""
 # @version {version_str}
     """
