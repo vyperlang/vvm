@@ -8,6 +8,11 @@ from packaging.version import Version
 from vvm.exceptions import UnexpectedVersionError
 from vvm.install import get_installable_vyper_versions, get_installed_vyper_versions
 
+# Find the first occurence of version specifier in the source code.
+# allow for indented comment (as the compiler allows it (as of 0.4.0)).
+# might have false positive if a triple quoted string contains a line
+# that looks like a version specifier and is before the actual version
+# specifier in the code, but this is accepted as it is an unlikely edge case.
 _VERSION_RE = re.compile(r"^\s*(?:#\s*(?:@version|pragma\s+version)\s+(.*))", re.MULTILINE)
 
 

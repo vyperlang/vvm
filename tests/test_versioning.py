@@ -1,5 +1,5 @@
 import pytest
-from packaging.specifiers import SpecifierSet
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 
 from vvm import detect_vyper_version_from_source
@@ -17,13 +17,18 @@ def test_foo_vyper_version(foo_source, vyper_version):
 @pytest.mark.parametrize(
     "version_str,decorator,pragma,expected_specifier_set,expected_version",
     [
+        # npm's ^ gets converted to ~=
         ("^0.2.0", "public", "@version", "~=0.2.0", "0.2.16"),
         ("^0.4.0", "external", "pragma version", "~=0.4.0", "0.4.0"),
-        (">=0.3.10, <0.4.0", "external", "pragma version", ">=0.3.10, <0.4.0", "0.3.10"),
-        ("0.1.0b17", "public", "@version", "==0.1.0b17", "0.1.0b17"),
         ("^0.1.0b16", "public", "@version", "~=0.1.0b16", "0.1.0b17"),
-        (">=0.3.0-beta17", "external", "@version", ">=0.3.0-beta17", "latest"),
+        # indented comment is supported
+        ("    0.4.0", "external", "pragma version", "==0.4.0", "0.4.0"),
+        # pep440 >= and < are preserved
+        (">=0.3.10, <0.4.0", "external", "pragma version", ">=0.3.10, <0.4.0", "0.3.10"),
+        # beta and release candidate are supported
+        ("0.1.0b17", "public", "@version", "==0.1.0b17", "0.1.0b17"),
         ("0.4.0rc6", "external", "pragma version", "==0.4.0rc6", "0.4.0rc6"),
+        (">=0.3.0-beta17", "external", "@version", ">=0.3.0-beta17", "latest"),
     ],
 )
 def test_vyper_version(
@@ -41,6 +46,25 @@ def foo() -> int128:
     if expected_version == "latest":
         expected_version = str(latest_version)
     assert detect_vyper_version_from_source(source) == Version(expected_version)
+
+
+@pytest.mark.parametrize(
+    "version_str",
+    [
+        "~0.2.0",
+        ">= 0.3.1 < 0.4.0",
+        "0.3.1 - 0.3.2",
+        "0.3.1 || 0.3.2",
+        "=0.3.1",
+    ],
+)
+def test_unsported_vyper_version(version_str):
+    # npm's complex ranges are not supported although old vyper version can handle them
+    source = f"""
+# @version {version_str}
+    """
+    with pytest.raises(InvalidSpecifier):
+        detect_version_specifier_set(source)
 
 
 def test_no_version_in_source():
