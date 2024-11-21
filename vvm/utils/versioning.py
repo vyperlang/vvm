@@ -35,9 +35,10 @@ def detect_version_specifier_set(source_code: str) -> Optional[SpecifierSet]:
     if re.match("[v0-9]", version_str):
         version_str = "==" + version_str
     # adapted from vyper/ast/pre_parse.py at commit c32b9b4c6f0d8
-    # convert npm to pep440
+    # partially convert npm to pep440
+    # - <0.4.0 contracts with complex npm version range might fail
+    # - in versions >=1.0.0, the below conversion will be invalid
     version_str = re.sub("^\\^", "~=", version_str)
-    version_str = re.sub("^~(?!\\=)", "~=", version_str)
 
     return SpecifierSet(version_str)
 
