@@ -28,7 +28,7 @@ def test_foo_vyper_version(foo_source, vyper_version):
         # beta and release candidate are supported
         ("0.1.0b17", "public", "@version", "==0.1.0b17", "0.1.0b17"),
         ("0.4.0rc6", "external", "pragma version", "==0.4.0rc6", "0.4.0rc6"),
-        (">=0.3.0-beta17", "external", "@version", ">=0.3.0-beta17", "latest"),
+        (">=0.3.0-beta17", "external", "@version", ">=0.3.0b17", "latest"),
     ],
 )
 def test_vyper_version(
