@@ -8,7 +8,7 @@ from packaging.version import Version
 from vvm.exceptions import UnexpectedVersionError
 from vvm.install import get_installable_vyper_versions, get_installed_vyper_versions
 
-_VERSION_RE = re.compile(r"^(?:#\s*(?:@version|pragma\s+version)\s+(.*))", re.MULTILINE)
+_VERSION_RE = re.compile(r"^\s*(?:#\s*(?:@version|pragma\s+version)\s+(.*))", re.MULTILINE)
 
 
 def detect_version_specifier_set(source_code: str) -> Optional[SpecifierSet]:
