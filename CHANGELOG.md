@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `output_format` argument to `compile_source` and `compile_files` ([#21](https://github.com/vyperlang/vvm/pull/21))
 - New public function `detect_vyper_version_from_source` ([#23](https://github.com/vyperlang/vvm/pull/23))
 - Fix `combine_json` for versions `>0.3.10` ([#29](https://github.com/vyperlang/vvm/pull/29))
+- Relax version detection checks ([#30](https://github.com/vyperlang/vvm/pull/30))
 
 ## [0.1.0](https://github.com/vyperlang/vvm/tree/v0.1.0) - 2020-10-07
 ### Added

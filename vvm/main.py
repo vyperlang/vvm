@@ -139,7 +139,6 @@ def _compile(
     output_format: Optional[str],
     **kwargs: Any,
 ) -> Any:
-
     if vyper_binary is None:
         vyper_binary = get_executable(vyper_version)
     if output_format is None:
