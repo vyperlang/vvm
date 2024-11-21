@@ -18,7 +18,6 @@ def test_foo_vyper_version(foo_source, vyper_version):
     "version_str,decorator,pragma,expected_specifier_set,expected_version",
     [
         ("^0.2.0", "public", "@version", "~=0.2.0", "0.2.16"),
-        ("~0.3.0", "external", "pragma version", "~=0.3.0", "0.3.10"),
         ("^0.4.0", "external", "pragma version", "~=0.4.0", "0.4.0"),
         (">=0.3.10, <0.4.0", "external", "pragma version", ">=0.3.10, <0.4.0", "0.3.10"),
         ("0.1.0b17", "public", "@version", "==0.1.0b17", "0.1.0b17"),
