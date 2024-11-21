@@ -34,6 +34,7 @@ def detect_version_specifier_set(source_code: str) -> Optional[SpecifierSet]:
     # X.Y.Z or vX.Y.Z => ==X.Y.Z, ==vX.Y.Z
     if re.match("[v0-9]", version_str):
         version_str = "==" + version_str
+    # adapted from vyper/ast/pre_parse.py at commit c32b9b4c6f0d8
     # convert npm to pep440
     version_str = re.sub("^\\^", "~=", version_str)
     version_str = re.sub("^~(?!\\=)", "~=", version_str)
