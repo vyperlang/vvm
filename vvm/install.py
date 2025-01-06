@@ -26,7 +26,20 @@ try:
 except ImportError:
     tqdm = None
 
-SESSION = requests.session()
+try:
+    from requests_cache import CachedSession
+
+    SESSION = CachedSession(
+        "~/.cache/vvm",
+        allowable_codes=[200],
+        cache_control=True,
+        expire_after=3600,
+        stale_if_error=True,
+    )
+except ImportError:
+    from requests import Session
+
+    SESSION = Session()
 
 GITHUB_RELEASES = "https://api.github.com/repos/vyperlang/vyper/releases?per_page=100"
 
