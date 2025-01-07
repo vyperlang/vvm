@@ -222,6 +222,7 @@ def install_vyper(
     show_progress: bool = False,
     vvm_binary_path: Union[Path, str] = None,
     headers: Dict = None,
+    validate: bool = True,
 ) -> Version:
     """
     Download and install a precompiled version of `vyper`.
@@ -235,6 +236,8 @@ def install_vyper(
         the `tqdm` package.
     vvm_binary_path : Path | str, optional
         User-defined path, used to override the default installation directory.
+    validate : bool
+        Set to False to skip validating the downloaded binary. Defaults to True.
 
     Returns
     -------
@@ -276,7 +279,8 @@ def install_vyper(
         if os_name != "windows":
             install_path.chmod(install_path.stat().st_mode | stat.S_IEXEC)
 
-        _validate_installation(version, vvm_binary_path)
+        if validate:
+            _validate_installation(version, vvm_binary_path)
 
     return version
 
