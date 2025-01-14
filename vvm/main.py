@@ -86,7 +86,7 @@ def compile_source(
 
 def compile_files(
     source_files: Union[List, Path, str],
-    base_path: Union[Path, str] = None,
+    base_path: Union[Path, str, List[Union[Path, str]]] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Union[str, Version, None] = None,
@@ -102,7 +102,7 @@ def compile_files(
     ---------
     source_files: List
         Path or list of paths of Vyper source files to be compiled.
-    base_path : Path | str, optional
+    base_path : Path | str | List, optional
         Use the given path as the root of the source tree instead of the root
         of the filesystem.
     evm_version: str, optional
@@ -133,7 +133,7 @@ def compile_files(
 
 
 def _compile(
-    base_path: Union[str, Path, None],
+    base_path: Union[str, Path, None, List[Union[str, Path]]],
     vyper_binary: Union[str, Path, None],
     vyper_version: Union[str, Version, None],
     output_format: Optional[str],
@@ -145,7 +145,7 @@ def _compile(
         output_format = "combined_json"
 
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f=output_format, p=base_path, **kwargs
+        vyper_binary=vyper_binary, f=output_format, paths=base_path, **kwargs
     )
 
     if output_format in ("combined_json", "standard_json", "metadata"):

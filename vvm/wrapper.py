@@ -1,6 +1,6 @@
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from packaging.version import Version
 
@@ -40,6 +40,7 @@ def vyper_wrapper(
     stdin: str = None,
     source_files: Union[List, Path, str] = None,
     success_return_code: int = 0,
+    paths: Optional[Union[List[Union[Path, str]], Path, str]] = None,
     **kwargs: Any,
 ) -> Tuple[str, str, List, subprocess.Popen]:
     """
@@ -94,6 +95,13 @@ def vyper_wrapper(
             command.append(_to_string("source_files", source_files))
         else:
             command.extend([_to_string("source_files", i) for i in source_files])
+
+    if paths:
+        if isinstance(paths, list):
+            for path in paths:
+                command.extend(("-p", f"{path}"))
+        else:
+            command.extend(("-p", f"{paths}"))
 
     for key, value in kwargs.items():
         if value is None or value is False:
