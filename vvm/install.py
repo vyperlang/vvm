@@ -238,6 +238,9 @@ def install_vyper(
         User-defined path, used to override the default installation directory.
     validate : bool
         Set to False to skip validating the downloaded binary. Defaults to True.
+        Useful for when debugging why a binary fails to run on your OS (may need
+        additional setup) or if managing binaries without needing to run them
+        (such as a mirror).
 
     Returns
     -------
