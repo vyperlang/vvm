@@ -153,7 +153,7 @@ def _compile(
     if base_path is not None and search_paths is not None:
         raise ValueError("Cannot specify both 'base_path' and 'search_paths'.")
 
-    paths = [base_path] if base_path is not None else search_paths
+    paths = search_paths if base_path is None else [base_path]
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
         vyper_binary=vyper_binary, f=output_format, paths=paths, **kwargs
     )
