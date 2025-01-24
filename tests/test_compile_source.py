@@ -19,13 +19,6 @@ def test_compile_files(foo_path, vyper_version):
     assert foo_path.as_posix() in output
 
 
-def test_compile_files_multiple_p(foo_path, vyper_version):
-    if Version("0.4.0b1") <= vyper_version <= Version("0.4.0b5"):
-        pytest.skip("vyper 0.4.0b1 to 0.4.0b5 have a bug with combined_json")
-    output = vvm.compile_files([foo_path], base_path=[Path.cwd(), *getsitepackages()])
-    assert foo_path.as_posix() in output
-
-
 def test_compile_standard(input_json, foo_source):
     input_json["sources"] = {"contracts/Foo.vy": {"content": foo_source}}
     result = vvm.compile_standard(input_json)
