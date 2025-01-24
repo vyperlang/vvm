@@ -1,4 +1,5 @@
 from pathlib import Path
+from site import getsitepackages
 
 import pytest
 from packaging.version import Version
