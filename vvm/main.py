@@ -86,11 +86,12 @@ def compile_source(
 
 def compile_files(
     source_files: Union[List, Path, str],
-    base_path: Union[Path, str, List[Union[Path, str]]] = None,
+    base_path: Optional[Union[Path, str]] = None,
     evm_version: str = None,
     vyper_binary: Union[str, Path] = None,
     vyper_version: Union[str, Version, None] = None,
     output_format: str = None,
+    search_paths: Optional[List[Union[Path, str]]] = None,
 ) -> Any:
     """
     Compile one or more Vyper source files.
@@ -102,7 +103,7 @@ def compile_files(
     ---------
     source_files: List
         Path or list of paths of Vyper source files to be compiled.
-    base_path : Path | str | List, optional
+    base_path : Path | str, optional
         Use the given path as the root of the source tree instead of the root
         of the filesystem.
     evm_version: str, optional
@@ -115,6 +116,9 @@ def compile_files(
         Ignored if `vyper_binary` is also given.
     output_format: str, optional
         Output format of the compiler. See `vyper --help` for more information.
+    search_paths: List[str | Path], optional
+        Additional search paths. Only applicable for Vyper 0.4. Cannot use with
+        `base_path` argument.
 
     Returns
     -------
@@ -129,14 +133,16 @@ def compile_files(
         base_path=base_path,
         evm_version=evm_version,
         output_format=output_format,
+        search_paths=search_paths,
     )
 
 
 def _compile(
-    base_path: Union[str, Path, None, List[Union[str, Path]]],
+    base_path: Union[str, Path, None],
     vyper_binary: Union[str, Path, None],
     vyper_version: Union[str, Version, None],
     output_format: Optional[str],
+    search_paths: Optional[List[Union[Path, str]]] = None,
     **kwargs: Any,
 ) -> Any:
     if vyper_binary is None:
@@ -144,8 +150,12 @@ def _compile(
     if output_format is None:
         output_format = "combined_json"
 
+    if base_path is not None and search_paths is not None:
+        raise ValueError("Cannot specify both 'base_path' and 'search_paths'.")
+
+    paths = [base_path] if base_path is not None else search_paths
     stdoutdata, stderrdata, command, proc = wrapper.vyper_wrapper(
-        vyper_binary=vyper_binary, f=output_format, paths=base_path, **kwargs
+        vyper_binary=vyper_binary, f=output_format, paths=paths, **kwargs
     )
 
     if output_format in ("combined_json", "standard_json", "metadata"):
