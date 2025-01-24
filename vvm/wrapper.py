@@ -97,7 +97,7 @@ def vyper_wrapper(
             command.extend([_to_string("source_files", i) for i in source_files])
 
     if paths:
-        if isinstance(paths, list):
+        if isinstance(paths, (list, tuple)):
             for path in paths:
                 command.extend(("-p", f"{path}"))
         else:
