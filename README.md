@@ -47,7 +47,7 @@ install_vyper(version="0.4.0", validate=False)
 
 ## Testing
 
-`vvm` is tested on Linux, OSX and Windows with Vyper versions `>=0.1.0-beta.16`.
+`vvm` is tested on Linux, macOS and Windows with Vyper versions `>=0.1.0-beta.16`.
 
 To run the test suite:
 
