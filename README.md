@@ -20,6 +20,31 @@ cd vvm
 python3 setup.py install
 ```
 
+## Quickstart
+
+Use `vvm` to install versions of Vyper:
+
+```python
+from vvm import install_vyper
+
+install_vyper(version="0.4.0")
+```
+
+**Note**: On macOS with the Apple chips, installing some versions of Vyper may fail if you have not first run this
+command:
+
+```bash
+softwareupdate --install-rosetta
+```
+
+To install Vyper without validating the binary (useful for debugging), you can set `validate=False`.
+
+```python
+from vvm import install_vyper
+
+install_vyper(version="0.4.0", validate=False)
+```
+
 ## Testing
 
 `vvm` is tested on Linux, OSX and Windows with Vyper versions `>=0.1.0-beta.16`.
