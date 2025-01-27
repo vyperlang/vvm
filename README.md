@@ -33,12 +33,11 @@ install_vyper(version="0.4.0")
 **Note**: On macOS with the Apple chips, installing some versions of Vyper may fail if you have not first run this
 command:
 
-```python
+```bash
 softwareupdate --install-rosetta
 ```
 
-To install Vyper without validating the binary (which is useful in the case where you did first run the command above
-but will later or are managing versions of Vyper without running them), you can set `skip_validation=False`.
+To install Vyper without validating the binary (useful for debugging), you can set `validate=False`.
 
 ```python
 from vvm import install_vyper
