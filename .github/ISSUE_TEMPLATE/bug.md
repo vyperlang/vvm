@@ -7,7 +7,7 @@ about: Report an error that you've encountered.
 * `vvm` Version: x.x.x
 * `vyper` Version: x.x.x
 * Python Version: x.x.x
-* OS: osx/linux/win
+* OS: macOS/linux/win
 
 ### What was wrong?
 
