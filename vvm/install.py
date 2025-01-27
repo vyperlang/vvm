@@ -7,7 +7,6 @@ from base64 import b64encode
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-import requests
 from packaging.version import Version
 
 from vvm import wrapper
