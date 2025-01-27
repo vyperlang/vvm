@@ -62,7 +62,7 @@ def get_vvm_install_folder(vvm_binary_path: Union[Path, str] = None) -> Path:
     Returns
     -------
     Path
-        Subdirectory where `vyper` binaries are are saved.
+        Subdirectory where `vyper` binaries are saved.
     """
     if os.getenv(VVM_BINARY_PATH_VARIABLE):
         return Path(os.environ[VVM_BINARY_PATH_VARIABLE])
